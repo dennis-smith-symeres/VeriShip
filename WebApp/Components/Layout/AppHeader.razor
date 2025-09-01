@@ -1,0 +1,27 @@
+﻿@inject IWebHostEnvironment Env
+
+<TelerikAppBar position="@AppBarPosition.Top" PositionMode="AppBarPositionMode.Sticky" Class="appHeader" ThemeColor="ThemeColor.Primary">
+    <AppBarSection>
+        <img src="/images/logo.png" alt="logo" width="24" height="24"/>
+        <div>
+            <h2 class="title">QC and shipment @(Env.IsDevelopment() ? "TEST" : "")</h2>
+        </div>
+    </AppBarSection>
+
+    <AppBarSpacer Size="12"></AppBarSpacer>
+    <AppBarSection>
+        <Menu></Menu>
+    </AppBarSection>
+    <AppBarSpacer></AppBarSpacer>
+    <AppBarSection>
+        
+        <LoginDisplay></LoginDisplay>
+    </AppBarSection>
+
+</TelerikAppBar>
+@code
+{
+    public string Title { get; set; } = "Shipment platform";
+
+  
+}

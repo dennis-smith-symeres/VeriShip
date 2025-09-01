@@ -1,0 +1,51 @@
+﻿
+@using Microsoft.AspNetCore.Components.Authorization
+@inherits LayoutComponentBase
+
+<ErrorBoundary>
+    <ChildContent>
+
+<TelerikRootComponent>
+    <AppHeader/>
+
+
+    <AuthorizeView>
+        <Authorized>
+
+            @Body
+
+        </Authorized>
+        <NotAuthorized>
+
+            <div style="
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100%;
+            margin-top: 100px;
+            ">
+                <LoginDisplay></LoginDisplay>
+            </div>
+
+        </NotAuthorized>
+    </AuthorizeView>
+
+    <div id="blazor-error-ui" data-nosnippet>
+        An unhandled error has occurred.
+        <a href="." class="reload">Reload</a>
+        <span class="dismiss">🗙</span>
+    </div>
+
+</TelerikRootComponent>
+    </ChildContent>
+    <ErrorContent>
+        <p>Something went wrong. Please try again later.</p>
+    </ErrorContent>
+</ErrorBoundary>
+
+
+<div id="blazor-error-ui" data-nosnippet>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">🗙</span>
+</div>

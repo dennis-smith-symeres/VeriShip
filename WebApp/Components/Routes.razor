@@ -1,0 +1,42 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+
+
+@inject NavigationManager NavigationManager
+
+<Router AppAssembly="typeof(Program).Assembly">
+    <Found Context="routeData">
+        <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+        <FocusOnNavigate RouteData="routeData" Selector="h1"/>
+    </Found>
+   
+    <NotFound>
+        <LayoutView Layout="@typeof(MainLayout)">
+            <div class="content">
+                
+                <TelerikCard Class="content text-center py-5"
+                >
+                    <CardHeader>
+                        <h1 style="color: #333; font-size: 2rem; font-weight: bold;">Oops!</h1>
+                    </CardHeader>
+                    <CardBody>
+                        <p style="color: #555; font-size: 1.2rem; margin-top: 10px;">Sorry, there's nothing at this
+                            address.</p>
+                    </CardBody>
+                    <CardActions Layout="CardActionsLayout.Center">
+                        
+                        <TelerikButton ThemeColor="@ThemeConstants.Button.ThemeColor.Primary"  OnClick="NavigateToHome">
+                            Return to Homepage
+                        </TelerikButton>
+                       
+                    </CardActions>
+                </TelerikCard>
+              
+
+            </div>
+        </LayoutView>
+    </NotFound>
+</Router>
+
+@code {
+    private void NavigateToHome() => NavigationManager.NavigateTo("/");
+}

@@ -1,0 +1,50 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<AuthorizeView>
+    <Authorized>
+        <TelerikButton 
+            OnClick="NavigateToProfile"
+                       Icon="@SvgIcon.User"
+                       FillMode="@ThemeConstants.Button.FillMode.Flat">
+            @context.User.Claims.FirstOrDefault(x => x.Type == "name")?.Value
+        </TelerikButton>
+
+        <TelerikButton 
+            OnClick="NavigateToLogout"
+            Icon="@SvgIcon.Logout"
+            FillMode="@ThemeConstants.Button.FillMode.Flat"
+            >
+        </TelerikButton>
+    
+    </Authorized>
+    <NotAuthorized>
+        <TelerikButton OnClick="NavigateToLogin" Icon="@SvgIcon.Login">
+            Login
+        </TelerikButton>
+   
+    </NotAuthorized>
+</AuthorizeView>
+
+@code
+
+{
+    private void NavigateToProfile() => NavigationManager.NavigateTo("/Profile");
+    private void NavigateToLogin() => NavigationManager.NavigateTo("/MicrosoftIdentity/Account/SignIn", true);
+    private void NavigateToLogout() => NavigationManager.NavigateTo("/MicrosoftIdentity/Account/SignOut", true);
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            if (!authState.User.Identity?.IsAuthenticated ?? true)
+            {
+                NavigationManager.NavigateTo("/MicrosoftIdentity/Account/SignIn", true);
+            }
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+}

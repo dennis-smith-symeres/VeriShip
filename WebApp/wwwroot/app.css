@@ -1,0 +1,87 @@
+
+
+:root {
+
+    /*primary*/
+    --purple: #923189;
+    --blue: #00A5C8;
+    --dark-blue: #09292E;
+
+    /*secondary*/
+    --purple-light: #C898C5;
+    --dark-blue-light: #858F96;
+    --dark-blue-very-light: #eceded;
+    --kendo-color-error:red;
+    --kendo-color-primary: var(--purple);
+    --kendo-color-primary-hover: var(--purple-light);
+    --kendo-color-secondary: var(--blue);
+    --kendo-color-secondary-hover: var(--dark-blue-light);
+    --kendo-color-tertiary: var(--dark-blue);
+    --kendo-color-tertiary-hover: var(--dark-blue-very-light);
+    --kendo-color-border: var(--dark-blue-light);
+    --kendo-floating-label-text: var(--dark-blue-light);
+    --kendo-floating-label-focus-text: var(--purple);
+    --kendo-notification-icon-spacing: 5rem;
+    --kenod-notification-success-bg: white;
+    --kendo-appbar-padding-y: 0px;
+    --kendo-appbar-light-bg:white;
+    --kendo-notification-padding-x:4px;
+    --kendo-notification-padding-y:4px;
+    --kendo-form-label-font-weight:500;
+    --kendo-input-solid-focus-border: var(--dark-blue-very-light);
+    --kendo-loading-text: var(--kendo-color-primary);
+    --kendo-loading-bg: var(--kendo-color-secondary-hover);
+    --kendo-grid-cell-padding-y-md: 4px;
+
+    --kendo-progressbar-bg:var(--kendo-color-secondary);
+    --kendo-upload-dropzone-padding-y: 0;
+
+    /*--kendo-toolbar-bg:var(--kendo-color-primary);*/
+    /*--kendo-toolbar-text: white;*/
+
+    /*--kendo-table-header-bg: var(--kendo-color-primary);*/
+    /*--kendo-grid-header-bg: var(--kendo-color-primary);*/
+    /*--kendo-table-header-text: white;*/
+    /*--kendo-card-header-padding-y:4px;*/
+    --kendo-form-hint-text: var(--kendo-color-primary);
+    /*--kendo-component-bg: var(--kendo-color-surface);*/
+    /*--kendo-component-border: var(--kendo-color-primary);*/
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    margin: 0;
+}
+
+#root {
+    width: 100%;
+}
+
+.appHeader {
+    box-shadow: 0 .15rem .75rem var(--dark-blue-light);
+}
+
+.title {
+
+    margin: 4px;
+}
+
+.content{
+    padding: 12px 24px 24px 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-width: 50%;
+
+
+}
+
+.error {
+    border: 1px solid red;
+
+}
+
