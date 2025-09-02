@@ -10,6 +10,8 @@
     <link href="_content/Telerik.UI.for.Blazor/css/kendo-theme-fluent/all.css" rel="stylesheet" />
     <link href="_content/Telerik.UI.for.Blazor/css/kendo-font-icons/font-icons.css" rel="stylesheet" />
     <script src="_content/Telerik.UI.for.Blazor/js/telerik-blazor.js"></script>
+    <script src="scripts/site.js"></script>
+
     <link rel="stylesheet" href="@Assets["app.css"]"/>
     <link rel="stylesheet" href="@Assets["VeriShip.WebApp.styles.css"]"/>
     <ImportMap/>
@@ -21,6 +23,11 @@
 <Routes @rendermode="InteractiveServer"/>
 <ReconnectModal/>
 <script src="@Assets["_framework/blazor.web.js"]"></script>
+<script>
+  // document.addEventListener('DOMContentLoaded', () => {
+  //   enableAutoScroll();
+  // });
+</script>
 
 </body>
 

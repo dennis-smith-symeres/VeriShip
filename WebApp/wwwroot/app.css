@@ -32,7 +32,7 @@
     --kendo-loading-text: var(--kendo-color-primary);
     --kendo-loading-bg: var(--kendo-color-secondary-hover);
     --kendo-grid-cell-padding-y-md: 4px;
-
+    --kendo-menu-item-padding-y: 0.50rem;
     --kendo-progressbar-bg:var(--kendo-color-secondary);
     --kendo-upload-dropzone-padding-y: 0;
 
@@ -50,6 +50,12 @@
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+}
+.k-appbar-top { 
+    background-color: var(--dark-blue-very-light);
+}
+.k-menu-vertical {
+    width: auto!important;
 }
 
 body {
@@ -73,13 +79,15 @@ body {
     padding: 12px 24px 24px 24px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    
     align-items: center;
     min-width: 50%;
 
 
 }
-
+a[href].k-link.active {
+    border-bottom: 2px solid #9e2d94;
+}
 .error {
     border: 1px solid red;
 

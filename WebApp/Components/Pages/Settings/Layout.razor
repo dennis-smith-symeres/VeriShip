@@ -1,0 +1,60 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using VeriShip.Application.Common
+@inherits LayoutComponentBase
+@layout MainLayout
+
+@inject NavigationManager NavigationManager
+
+<div style="display: flex; gap: 1rem;">
+    <div style="background-color: var(--dark-blue-very-light); height: 100vh;">
+        
+        <Menu MenuItems="@MenuItems" Orientation="MenuOrientation.Vertical"></Menu>
+    </div>
+    <div class="content">
+        <AuthorizeView Roles="@Roles.Officer" >
+            <Authorized >
+           
+                @Body
+          
+            </Authorized>
+            <NotAuthorized>
+                <h1>You are not authorized to view this page</h1>
+            </NotAuthorized>
+        </AuthorizeView>
+    </div>
+  
+</div>
+
+
+@code {
+
+    private List<Menu.MenuItem> MenuItems { get; set; } = new List<Menu.MenuItem>([
+        new Menu.MenuItem()
+        {
+            Text = "Specifications",
+            Url = "/settings/specifications"
+        },
+        new Menu.MenuItem()
+        {
+            Text = "Addresses",
+            Url = "/settings/addresses"
+        },
+        new Menu.MenuItem()
+        {
+            Text = "Templates",
+            Url = "/settings/templates"
+        }
+    ]);
+
+    protected override Task OnInitializedAsync()
+    {
+        var currentUrl = NavigationManager.Uri;
+        if (!MenuItems.Any(x => currentUrl.EndsWith(x.Url)))
+        {
+            NavigationManager.NavigateTo(MenuItems.First().Url);
+        }
+
+        return Task.CompletedTask;
+    }
+
+}

@@ -1,8 +1,13 @@
-﻿namespace VeriShip.Domain.Entities.QCSpecifications;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+
+namespace VeriShip.Domain.Entities.QCSpecifications;
 
 public enum SpecialField
 {
+   
     None = 0,
+   
     BatchCode = 1,
     ProjectCode = 2,
     MolecularFormula = 3,

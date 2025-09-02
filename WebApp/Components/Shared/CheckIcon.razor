@@ -1,0 +1,16 @@
+﻿@if (Checked)
+{
+    
+<TelerikFontIcon Icon="@FontIcon.Check"  ThemeColor="@ThemeConstants.FontIcon.ThemeColor.Success"></TelerikFontIcon>
+}
+else
+{
+    <TelerikFontIcon Icon="@FontIcon.Minus"  ThemeColor="@ThemeConstants.FontIcon.ThemeColor.Error"></TelerikFontIcon>
+}
+
+@code{
+
+    
+    [Parameter] public bool Checked { get; set; }
+
+}

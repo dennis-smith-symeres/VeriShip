@@ -6,21 +6,21 @@
     <Authorized>
         <TelerikButton 
             OnClick="NavigateToProfile"
-                       Icon="@SvgIcon.User"
+                       Icon="@FontIcon.User"
                        FillMode="@ThemeConstants.Button.FillMode.Flat">
             @context.User.Claims.FirstOrDefault(x => x.Type == "name")?.Value
         </TelerikButton>
 
         <TelerikButton 
             OnClick="NavigateToLogout"
-            Icon="@SvgIcon.Logout"
+            Icon="@FontIcon.Logout"
             FillMode="@ThemeConstants.Button.FillMode.Flat"
             >
         </TelerikButton>
     
     </Authorized>
     <NotAuthorized>
-        <TelerikButton OnClick="NavigateToLogin" Icon="@SvgIcon.Login">
+        <TelerikButton OnClick="NavigateToLogin" Icon="@FontIcon.Login">
             Login
         </TelerikButton>
    

@@ -1,6 +1,7 @@
 ﻿@page "/weather"
 @using VeriShip.Application.Features
 @using VeriShip.Application.Features.QcSpecifications
+@using VeriShip.Application.Features.QcSpecifications.Queries
 @using VeriShip.Domain.Entities.QCSpecifications
 @using Table = VeriShip.Domain.Entities.QCSpecifications.Table
 
@@ -49,7 +50,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        var qcSpecifications = await QcSpecificationStore.Handle(new GetAllRequest()
+        var qcSpecifications = await QcSpecificationStore.Handle(new GetAll()
         {
             Table = Table.GeneralInformation,
             

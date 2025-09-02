@@ -1,0 +1,32 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using VeriShip.Application.Common
+@using VeriShip.Domain.Entities.QCSpecifications
+@using VeriShip.WebApp.Services
+@inherits LayoutComponentBase
+
+@layout Layout
+
+@page "/settings/specifications"
+<PageTitle>Specifications</PageTitle>
+
+<TelerikTabStrip @bind-ActiveTabIndex="@ActiveTabIndex">
+<TabStripTab Title="@Attributes.GetEnumDisplayName(Table.GeneralInformation)">
+    <EditGrid Table="@Table.GeneralInformation">
+    </EditGrid>
+</TabStripTab>
+<TabStripTab Title="@Attributes.GetEnumDisplayName(Table.Tests)">
+    <EditGrid Table="@Table.Tests">
+    </EditGrid>
+</TabStripTab>
+<TabStripTab Title="@Attributes.GetEnumDisplayName(Table.Metadata)">
+    <EditGrid Table="@Table.Metadata">
+    </EditGrid>
+</TabStripTab>
+</TelerikTabStrip>
+
+@code {
+
+    private int ActiveTabIndex { get; set; } = 0;
+
+  
+}

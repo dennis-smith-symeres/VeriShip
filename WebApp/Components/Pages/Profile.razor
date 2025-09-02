@@ -1,0 +1,77 @@
+﻿@page "/Profile"
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Authorization
+@using VeriShip.Application.Common
+
+
+
+
+
+<div class="content">
+
+    <TelerikCard>
+        <CardHeader>
+            <CardTitle>
+              Profile
+            </CardTitle>
+            <CardBody>
+                <table class="profile-table">
+                    <tr>
+                        <td><label>Name</label></td>
+                        <td><span>@Name</span></td>
+                    </tr>
+  
+                        <tr>
+                            <td><label>Access</label></td>
+                            <td><CheckIcon Checked="@HasAccess" /></td>
+                        </tr>
+                    <tr>
+                        <td><label>QC officer</label></td>
+                        <td><CheckIcon Checked="@IsQc" /></td>
+                    </tr>
+                    <tr>
+                        <td><label>Administrator</label></td>
+                        <td><CheckIcon Checked="@IsAdmin" /></td>
+                    </tr>
+                </table>
+
+               
+
+            </CardBody>
+        </CardHeader>
+    </TelerikCard>
+  
+
+</div>
+@code {
+
+    [CascadingParameter] private Task<AuthenticationState>? AuthState { get; set; }
+
+    private IEnumerable<Claim> Claims { get; set; } = [];
+    
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthState == null)
+        {
+            return;
+        }
+
+        var authState = await AuthState;
+        Claims = authState.User.Claims;
+        Name = Claims.FirstOrDefault(c => c.Type == "name")?.Value;
+        IsAdmin = Claims.Any(c => c is { Type: ClaimTypes.Role, Value: Roles.Admin });
+        IsQc = Claims.Any(c => c is { Type: ClaimTypes.Role, Value: Roles.Officer});
+        HasAccess =  Claims.Any(c => c is { Type: ClaimTypes.Role, Value: Roles.Access});
+    
+    }
+
+    public bool HasAccess { get; set; }
+
+    public bool IsQc { get; set; }
+
+    public bool IsAdmin { get; set; }
+
+    public string? Name { get; set; }
+
+}
