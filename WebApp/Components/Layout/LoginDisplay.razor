@@ -5,14 +5,14 @@
 <AuthorizeView>
     <Authorized>
         <TelerikButton 
-            OnClick="NavigateToProfile"
+            OnClick="@NavigateToProfile"
                        Icon="@FontIcon.User"
                        FillMode="@ThemeConstants.Button.FillMode.Flat">
             @context.User.Claims.FirstOrDefault(x => x.Type == "name")?.Value
         </TelerikButton>
 
         <TelerikButton 
-            OnClick="NavigateToLogout"
+            OnClick="@NavigateToLogout"
             Icon="@FontIcon.Logout"
             FillMode="@ThemeConstants.Button.FillMode.Flat"
             >
@@ -20,7 +20,7 @@
     
     </Authorized>
     <NotAuthorized>
-        <TelerikButton OnClick="NavigateToLogin" Icon="@FontIcon.Login">
+        <TelerikButton OnClick="@NavigateToLogin" Icon="@FontIcon.Login">
             Login
         </TelerikButton>
    

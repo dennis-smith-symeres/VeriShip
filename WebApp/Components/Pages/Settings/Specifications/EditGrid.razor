@@ -1,6 +1,5 @@
 ﻿
 @using Microsoft.AspNetCore.Components.Authorization
-@using VeriShip.Application.Features
 @using VeriShip.Application.Features.QcSpecifications
 @using VeriShip.Application.Features.QcSpecifications.Commands
 @using VeriShip.Application.Features.QcSpecifications.Queries
@@ -34,7 +33,7 @@
                 @{
                     CurrentlyEditedTeam = @context as QcSpecification;
                     <TelerikAutoComplete Data="@QcSpecifications.Select(x => x.Category)"
-                                         @bind-Value="@CurrentlyEditedTeam.Category"
+                                         @bind-Value="@CurrentlyEditedTeam!.Category"
 
                                          ShowClearButton="true"/>
                 }
@@ -47,7 +46,7 @@
                 @{
                     CurrentlyEditedTeam = @context as QcSpecification;
                     <TelerikAutoComplete Data="@QcSpecifications.Select(x => x.Technique)"
-                                         @bind-Value="@CurrentlyEditedTeam.Technique"
+                                         @bind-Value="@CurrentlyEditedTeam!.Technique"
 
                                          ShowClearButton="true"/>
                 }
@@ -59,7 +58,7 @@
                 @{
                     CurrentlyEditedTeam = @context as QcSpecification;
                     <TelerikAutoComplete Data="@QcSpecifications.Select(x => x.Acceptance)"
-                                         @bind-Value="@CurrentlyEditedTeam.Acceptance"
+                                         @bind-Value="@CurrentlyEditedTeam!.Acceptance"
 
                                          ShowClearButton="true"/>
                 }
@@ -71,9 +70,6 @@
                                   Width="150px"
                     Editable="false" ></GridColumn>
 
-
-
-        @ChildContent
         <GridColumn Field="@nameof(QcSpecification.Values)">
             <Template>
                 @{
@@ -145,14 +141,14 @@
 
 @code {
 
-    [Inject] IQcSpecificationStore QcSpecificationStore { get; set; }
+    [Inject] IQcSpecificationStore QcSpecificationStore { get; set; } = null!;
     [CascadingParameter] private Task<AuthenticationState>? AuthState { get; set; }
-    [Parameter] public RenderFragment ChildContent { get; set; }
+ 
     [Parameter] public Table Table { get; set; }
     [Parameter] public List<QcSpecification> QcSpecifications { get; set; } = [];
 
     private QcSpecification? CurrentlyEditedTeam { get; set; }
-    private string DragClueField { get; set; }
+    private string DragClueField { get; set; } = string.Empty;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -179,9 +175,12 @@
         var authState = await AuthState;
         data.Table = Table;
 
-        var response = await QcSpecificationStore.Handle(new Upsert(authState.User.Identity.Name, data), CancellationToken.None);
-     
-  
+        if (authState.User.Identity?.Name != null)
+        {
+            await QcSpecificationStore.Handle(new Upsert(authState.User.Identity.Name, data), CancellationToken.None);
+        }
+
+
         await LoadChecks();
     }
 
@@ -190,12 +189,9 @@
         CurrentlyEditedTeam?.Values.Add("");
     }
 
-    private void RemoveValue(int i1)
-    {
-        CurrentlyEditedTeam?.Values.RemoveAt(i1);
-    }
+  
 
-    private async Task CancelHandler(GridCommandEventArgs obj)
+    private void CancelHandler(GridCommandEventArgs obj)
     {
         CurrentlyEditedTeam = null;
     }
@@ -215,22 +211,28 @@
         }
 
         QcSpecifications.Insert(destinationItemIndex, args.Item);
-        var authState = await AuthState;
-        var order = QcSpecifications.Select(x => x.Id).ToArray(); // Current ID sort order
-        QcSpecifications = QcSpecifications
-            .GroupBy(item => item.Category) // Group items by Category
-            .SelectMany(group => group.OrderBy(item =>
-            {
-                var index = Array.IndexOf(order, item.Id);
-                return index < 0 ? int.MaxValue : index; // Items without index go to the end
-            }))
-            .ToList();
+        if (AuthState != null)
+        {
+            var authState = await AuthState;
+            var order = QcSpecifications.Select(x => x.Id).ToArray(); // Current ID sort order
+            QcSpecifications = QcSpecifications
+                .GroupBy(item => item.Category) // Group items by Category
+                .SelectMany(group => group.OrderBy(item =>
+                {
+                    var index = Array.IndexOf(order, item.Id);
+                    return index < 0 ? int.MaxValue : index; 
+                }))
+                .ToList();
 
-        var command = new Sort(authState.User.Identity.Name, Table, QcSpecifications.Select(x => x.Id).ToArray());
-        var result = await QcSpecificationStore.Handle(command, CancellationToken.None);
-            
-    
-         await LoadChecks();
+            if (authState.User.Identity?.Name != null)
+            {
+                var command = new Sort(authState.User.Identity.Name, Table, QcSpecifications.Select(x => x.Id).ToArray());
+                await QcSpecificationStore.Handle(command, CancellationToken.None);
+            }
+        }
+
+
+        await LoadChecks();
     }
 
 

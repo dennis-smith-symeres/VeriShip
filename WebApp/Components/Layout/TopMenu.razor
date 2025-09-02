@@ -10,36 +10,28 @@
 
 
     [CascadingParameter] private Task<AuthenticationState>? AuthState { get; set; }
-   
-    private List<Menu.MenuItem> MenuItems { get; set; }
 
-    private Menu.MenuItem SelectedMenuItem { get; set; }
+    private List<Menu.MenuItem> MenuItems { get; set; } = [];
+
 
     protected override async void OnInitialized()
     {
-        var authState = await AuthState;
-
-        var user = authState.User;
-        MenuItems = new List<Menu.MenuItem>
+        try
         {
-           
-        };
-        if (user.IsInRole(Roles.Officer) )
-        {
-            MenuItems.Add(new Menu.MenuItem
+            if (AuthState == null) return;
+            var authState = await AuthState;
+            MenuItems = [];
+            if (authState.User.IsInRole(Roles.Officer))
             {
-                Text = "Settings",
-                Url= "/settings"
-            });
+                MenuItems.Add(new Menu.MenuItem("Settings", "/settings", ""));
+            }
         }
-     
-
-
-        base.OnInitialized();
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+         
+        }
     }
 
-
-
- 
 
 }

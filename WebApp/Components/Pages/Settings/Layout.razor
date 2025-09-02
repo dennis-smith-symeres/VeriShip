@@ -28,23 +28,12 @@
 
 @code {
 
-    private List<Menu.MenuItem> MenuItems { get; set; } = new List<Menu.MenuItem>([
-        new Menu.MenuItem()
-        {
-            Text = "Specifications",
-            Url = "/settings/specifications"
-        },
-        new Menu.MenuItem()
-        {
-            Text = "Addresses",
-            Url = "/settings/addresses"
-        },
-        new Menu.MenuItem()
-        {
-            Text = "Templates",
-            Url = "/settings/templates"
-        }
-    ]);
+    private List<Menu.MenuItem> MenuItems { get; set; } =
+    [
+        new ("Specifications", "/settings/specifications", ""),
+        new ("Addresses", "/settings/addresses"),
+        new ("Templates", "/settings/templates")
+    ];
 
     protected override Task OnInitializedAsync()
     {

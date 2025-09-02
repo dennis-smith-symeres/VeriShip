@@ -58,7 +58,7 @@
         }
 
         var authState = await AuthState;
-        Claims = authState.User.Claims;
+        Claims = authState.User.Claims.ToArray();
         Name = Claims.FirstOrDefault(c => c.Type == "name")?.Value;
         IsAdmin = Claims.Any(c => c is { Type: ClaimTypes.Role, Value: Roles.Admin });
         IsQc = Claims.Any(c => c is { Type: ClaimTypes.Role, Value: Roles.Officer});
@@ -66,12 +66,12 @@
     
     }
 
-    public bool HasAccess { get; set; }
+    private bool HasAccess { get; set; }
 
-    public bool IsQc { get; set; }
+    private bool IsQc { get; set; }
 
-    public bool IsAdmin { get; set; }
+    private bool IsAdmin { get; set; }
 
-    public string? Name { get; set; }
+    private string? Name { get; set; }
 
 }

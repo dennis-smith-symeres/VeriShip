@@ -39,7 +39,7 @@
         return !(url.StartsWith("https://"));
     }
 
-    public record MenuItem(string Text, string Url, string TelerikIcon);
+    public record MenuItem(string Text, string Url, string? TelerikIcon = null);
 
 
 }
