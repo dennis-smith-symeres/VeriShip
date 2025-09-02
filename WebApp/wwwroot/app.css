@@ -71,7 +71,10 @@ body {
 }
 
 .title {
-
+    text-decoration: none;
+    margin: 4px;
+}
+.title h2 {
     margin: 4px;
 }
 

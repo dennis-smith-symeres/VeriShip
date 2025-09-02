@@ -3,9 +3,10 @@
 <TelerikAppBar position="@AppBarPosition.Top" PositionMode="AppBarPositionMode.Sticky" Class="appHeader" ThemeColor="ThemeColor.Primary">
     <AppBarSection>
         <img src="/images/logo.png" alt="logo" width="24" height="24"/>
-        <div>
-            <h2 class="title">QC and shipment @(Env.IsDevelopment() ? "TEST" : "")</h2>
-        </div>
+    
+        <NavLink href="/" class="title">
+            <h2 >QC and shipment @(Env.IsDevelopment() ? "TEST" : "")</h2>
+        </NavLink>
     </AppBarSection>
 
     <AppBarSpacer Size="12"></AppBarSpacer>

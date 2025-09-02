@@ -40,4 +40,8 @@
       <Content Remove="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.css" />
     </ItemGroup>
 
+    <ItemGroup>
+      <AdditionalFiles Include="Components\Pages\Projects\Certifications\Home.razor" />
+    </ItemGroup>
+
 </Project>

@@ -22,11 +22,7 @@
         var user = authState.User;
         MenuItems = new List<Menu.MenuItem>
         {
-            new ()
-            {
-                Text = "Certifications",
-                Url = "/"
-            }
+           
         };
         if (user.IsInRole(Roles.Officer) )
         {
