@@ -5,12 +5,11 @@
 
 @inject NavigationManager NavigationManager
 
-<div style="display: flex; gap: 1rem;">
-    <div style="background-color: var(--dark-blue-very-light); height: 100vh;">
-        
+<div class="content">
+    <div style="background-color: var(--dark-blue-very-light); ">
         <Menu MenuItems="@MenuItems" Orientation="MenuOrientation.Vertical"></Menu>
     </div>
-    <div class="content">
+
         <AuthorizeView Roles="@Roles.Officer" >
             <Authorized >
            
@@ -21,7 +20,7 @@
                 <h1>You are not authorized to view this page</h1>
             </NotAuthorized>
         </AuthorizeView>
-    </div>
+
   
 </div>
 
@@ -35,15 +34,5 @@
         new ("Templates", "/settings/templates")
     ];
 
-    protected override Task OnInitializedAsync()
-    {
-        var currentUrl = NavigationManager.Uri;
-        if (!MenuItems.Any(x => currentUrl.EndsWith(x.Url)))
-        {
-            NavigationManager.NavigateTo(MenuItems.First().Url);
-        }
-
-        return Task.CompletedTask;
-    }
-
+ 
 }

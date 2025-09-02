@@ -23,7 +23,7 @@
             MenuItems = [];
             if (authState.User.IsInRole(Roles.Officer))
             {
-                MenuItems.Add(new Menu.MenuItem("Settings", "/settings", ""));
+                MenuItems.Add(new Menu.MenuItem("Settings", "/settings/specifications", ""));
             }
         }
         catch (Exception e)

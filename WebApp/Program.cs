@@ -8,6 +8,7 @@ using VeriShip.Infrastructure;
 using VeriShip.WebApp;
 using VeriShip.WebApp.Components;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 Log.Logger = new LoggerConfiguration()

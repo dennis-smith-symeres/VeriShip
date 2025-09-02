@@ -78,16 +78,18 @@ body {
     margin: 4px;
 }
 
-.content{
-    padding: 12px 24px 24px 24px;
+.main-content{
+    padding: 12px 12px ;
     display: flex;
     flex-direction: column;
-    
     align-items: center;
     min-width: 50%;
-
-
 }
+
+.content {
+    display: flex; gap: 1rem;height: calc(100vh - 80px);
+}
+
 a[href].k-link.active {
     border-bottom: 2px solid #9e2d94;
 }
@@ -95,4 +97,15 @@ a[href].k-link.active {
     border: 1px solid red;
 
 }
-
+.footer {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    border-top-left-radius: 10px;
+    box-shadow: 0 0 .75rem rgba(var(--dark-blue) 0.3);
+    background-color: ghostwhite;
+    color: black;
+    padding: 5px 10px;
+    font-size: 0.7rem;
+    text-align: end;
+}

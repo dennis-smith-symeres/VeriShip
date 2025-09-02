@@ -7,10 +7,12 @@ public static class KeyVaultExtension
 {
     public static WebApplicationBuilder AddkeyVault(this WebApplicationBuilder builder)
     {
-   
+        var certificateThumbprint = builder.Configuration["AzureAd:CertificateThumbprint"];
         var isDevelopment = builder.Environment.IsDevelopment() 
                             || builder.Environment.EnvironmentName == "Testing" ;
-        var x509Certificate = GetX509Certificate(isDevelopment,builder.Configuration["AzureAd:CertificateThumbprint"]);
+        if (certificateThumbprint == null) return builder;
+        
+        var x509Certificate = GetX509Certificate(isDevelopment,certificateThumbprint);
 
         builder.Configuration.AddAzureKeyVault(
             new Uri($"https://{builder.Configuration["AzureAd:KeyVaultName"]}.vault.azure.net/"),
