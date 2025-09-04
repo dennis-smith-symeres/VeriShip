@@ -1,4 +1,6 @@
-﻿namespace VeriShip.Application.Features.Signals.Constants;
+﻿using RefitClient.Queries;
+
+namespace VeriShip.Application.Features.Signals.Constants;
 
 public static class CacheKeys
 {
@@ -9,5 +11,6 @@ public static class CacheKeys
     
     
     public static string User(string userId) => $"{SignalsCacheKey}:{UserPrefix}:{userId}";
+    public static string UserJournalPermission(string userId, string journalId, Security securityToCheck) => $"{SignalsCacheKey}:{UserPrefix}:{userId}:{journalId}:{securityToCheck}";
     public static string Journal(string journalId) => $"{SignalsCacheKey}:{JournalPrefix}:{journalId}";
 }

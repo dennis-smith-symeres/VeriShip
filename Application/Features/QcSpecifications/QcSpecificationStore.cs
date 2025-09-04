@@ -1,5 +1,6 @@
 ﻿using Ardalis.Result;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using VeriShip.Application.Features.QcSpecifications.Commands;
 using VeriShip.Application.Features.QcSpecifications.Queries;
 using VeriShip.Domain.Entities.QCSpecifications;
@@ -8,7 +9,7 @@ using Sort = VeriShip.Application.Features.QcSpecifications.Commands.Sort;
 
 namespace VeriShip.Application.Features.QcSpecifications;
 
-public class QcSpecificationStore(IApplicationDbContextFactory dbContextFactory) : IQcSpecificationStore
+public class QcSpecificationStore(IApplicationDbContextFactory dbContextFactory, ILogger<QcSpecificationStore> logger) : IQcSpecificationStore
 {
     public async Task<Result<IEnumerable<QcSpecification>>> Query(GetAll request, CancellationToken cancellationToken)
     {
@@ -34,6 +35,7 @@ public class QcSpecificationStore(IApplicationDbContextFactory dbContextFactory)
         }
         catch (Exception e)
         {
+            logger.LogError(e, "Error getting all specifications");
            return Result<IEnumerable<QcSpecification>>.Error(e.Message);
         }
     }
@@ -80,8 +82,8 @@ public class QcSpecificationStore(IApplicationDbContextFactory dbContextFactory)
         }
         catch (Exception e)
         {
+            logger.LogError(e, "Error saving changes");
             return Result<int>.Error($"Error saving changes: {e.Message}");
-
         }
 
         return new(specification.Id);
@@ -112,8 +114,8 @@ public class QcSpecificationStore(IApplicationDbContextFactory dbContextFactory)
         }
         catch (Exception e)
         {
+            logger.LogError(e, "Error saving order");
             return Result<int>.Error($"Error saving order: {e.Message}");
-
         }
 
         return new( sort.Id);

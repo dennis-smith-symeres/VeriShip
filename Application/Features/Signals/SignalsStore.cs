@@ -1,4 +1,5 @@
 ﻿using Ardalis.Result;
+using Microsoft.Extensions.Logging;
 using RefitClient;
 using RefitClient.Queries;
 using RefitClient.Responses;
@@ -12,47 +13,58 @@ namespace VeriShip.Application.Features.Signals;
 
 public record GetNotebook(string ProjectNumber, string User);
 
-public class SignalsStore(IRefitClient client, IFusionCache cache) : ISignalsStore
+public class SignalsStore(IRefitClient client, IFusionCache cache, ILogger<SignalsStore> logger) : ISignalsStore
 {
     public async Task<Result<Notebook>> Query(GetNotebook request)
     {
         var projectNumber = request.ProjectNumber;
         var user = request.User;
-
-        var journalResponse = await cache.GetOrSetAsync(
-            CacheKeys.Journal(projectNumber),
-            _ => client.GetJournal(projectNumber)
-        );
-
-        if (journalResponse == null)
+        try
         {
-            return Result<Notebook>.NotFound("Signals journal not found");
-        }
-        var canRead = await client.CheckPermission(journalResponse.Data[0].Attributes, Security.Read, user);
-        if (!canRead && user.StartsWith("Admin."))
-        {
-            var userResponse = await cache.GetOrSetAsync(
-                CacheKeys.User(user),
-                _ => client.Users(new UserQuery(user))
+            var journalResponse = await cache.GetOrSetAsync(
+                CacheKeys.Journal(projectNumber),
+                _ => client.GetJournal(projectNumber)
             );
-            
-            if (userResponse.Data.Any(d => d.Relationships.Roles.Data.Any(d =>d.Id =="1")))
-            {
-                canRead = true;
-            }
-        }
 
-        if (!canRead)
-        {
-            return Result<Notebook>.Forbidden();
+            if (journalResponse == null)
+            {
+                return Result<Notebook>.NotFound("Signals journal not found");
+            }
+
+            var canRead = await cache.GetOrSetAsync(
+                CacheKeys.UserJournalPermission(user, projectNumber, Security.Read),
+                _ => client.CheckPermission(journalResponse.Data[0].Attributes, Security.Read, user)
+            );
+            if (!canRead && user.StartsWith("Admin."))
+            {
+                var userResponse = await cache.GetOrSetAsync(
+                    CacheKeys.User(user),
+                    _ => client.Users(new UserQuery(user))
+                );
+
+                if (userResponse.Data.Any(d => d.Relationships.Roles.Data.Any(d => d.Id == "1")))
+                {
+                    canRead = true;
+                }
+            }
+
+            if (!canRead)
+            {
+                return Result<Notebook>.Forbidden();
+            }
+
+            return new(new Notebook()
+            {
+                Description = journalResponse.Data[0].Attributes.Description,
+                Client = journalResponse.Data[0].Attributes.Tags.FieldsClient,
+                Id = journalResponse.Data[0].Attributes.Eid,
+                CanRead = canRead
+            });
         }
-        return new(new Notebook()
+        catch (Exception e)
         {
-            Description = journalResponse.Data[0].Attributes.Description,
-            Client = journalResponse.Data[0].Attributes.Tags.FieldsClient,
-            Id = journalResponse.Data[0].Attributes.Eid,
-            CanRead = canRead
-        });
-        
+            logger.LogError(e, "Error getting notebook");
+            return Result<Notebook>.Error(e.Message);
+        }
     }
 }

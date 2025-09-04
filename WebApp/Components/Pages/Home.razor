@@ -5,6 +5,7 @@
 @using VeriShip.Application.Features.Projects
 @using VeriShip.Application.Features.Projects.Queries
 @using VeriShip.Application.Features.Signals
+@using VeriShip.WebApp.Constants
 @using VeriShip.WebApp.Services
 
 <PageTitle>Home</PageTitle>
@@ -32,7 +33,7 @@
         @foreach (var notebook in Notebooks)
         {
             <p>
-                <a href="/Project/@notebook">@notebook</a>
+                <a href="/@notebook/certifications">@notebook</a>
             </p>
         }
     </div>
@@ -41,6 +42,7 @@
 
 
 @code {
+   
 
     [Inject] public required NavigationManager NavigationManager  { get; set; }
     [Inject] public required ProtectedLocalStorage LocalStorage { get; set; }
@@ -78,7 +80,7 @@
             try
             {
                 
-                var storedNotebooks = await LocalStorage.GetAsync<List<string>>("veriship-notebooks");
+                var storedNotebooks = await LocalStorage.GetAsync<List<string>>(LocalStorageKeys.VerishipNotebooks);
                 Notebooks = storedNotebooks.Success ? storedNotebooks.Value ?? [] : [];
             }
             catch (Exception e)
