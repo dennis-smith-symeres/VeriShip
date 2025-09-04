@@ -9,6 +9,7 @@ using VeriShip.Application.Common;
 using VeriShip.Infrastructure;
 using VeriShip.WebApp;
 using VeriShip.WebApp.Components;
+using VeriShip.WebApp.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,13 +32,13 @@ builder.AddkeyVault();
 
 builder.Services.AddControllersWithViews()
     .AddMicrosoftIdentityUI();
-builder.Services.Configure<RefitOptions>(builder.Configuration.GetSection("Signals"));
+
 
 builder.Services.AddAuthorization();
 builder.Services.AddTelerikBlazor();
 builder.Services.AddInfrastructure(builder.Configuration);
-builder.Services.AddApplication();
-
+builder.Services.AddApplication(builder.Configuration);
+builder.Services.AddScoped<INotifications, Notifications>();
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();

@@ -1,8 +1,9 @@
-﻿using VeriShip.Application.Features.Signals.Models;
+﻿using Ardalis.Result;
+using VeriShip.Application.Features.Signals.Models;
 
 namespace VeriShip.Application.Features.Signals;
 
 public interface ISignalsStore
 {
-    Task<Notebook?> Query(GetNotebook request);
+    Task<Result<Notebook>> Query(GetNotebook request);
 }

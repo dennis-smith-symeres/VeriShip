@@ -1,4 +1,5 @@
-﻿using RefitClient;
+﻿using Ardalis.Result;
+using RefitClient;
 using RefitClient.Queries;
 using RefitClient.Responses;
 using RefitClient.Responses.Data;
@@ -13,7 +14,7 @@ public record GetNotebook(string ProjectNumber, string User);
 
 public class SignalsStore(IRefitClient client, IFusionCache cache) : ISignalsStore
 {
-    public async Task<Notebook?> Query(GetNotebook request)
+    public async Task<Result<Notebook>> Query(GetNotebook request)
     {
         var projectNumber = request.ProjectNumber;
         var user = request.User;
@@ -25,7 +26,7 @@ public class SignalsStore(IRefitClient client, IFusionCache cache) : ISignalsSto
 
         if (journalResponse == null)
         {
-            return null;
+            return Result<Notebook>.NotFound("Signals journal not found");
         }
         var canRead = await client.CheckPermission(journalResponse.Data[0].Attributes, Security.Read, user);
         if (!canRead && user.StartsWith("Admin."))
@@ -40,14 +41,18 @@ public class SignalsStore(IRefitClient client, IFusionCache cache) : ISignalsSto
                 canRead = true;
             }
         }
-      
-        return new Notebook()
+
+        if (!canRead)
+        {
+            return Result<Notebook>.Forbidden();
+        }
+        return new(new Notebook()
         {
             Description = journalResponse.Data[0].Attributes.Description,
             Client = journalResponse.Data[0].Attributes.Tags.FieldsClient,
             Id = journalResponse.Data[0].Attributes.Eid,
             CanRead = canRead
-        };
+        });
         
     }
 }

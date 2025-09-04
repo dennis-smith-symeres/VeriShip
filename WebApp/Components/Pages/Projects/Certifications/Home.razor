@@ -1,19 +1,19 @@
 ﻿@page "/{projectNumber}/certifications"
+@using Ardalis.Result
 @using Microsoft.AspNetCore.Components.Authorization
 @using VeriShip.Application.Features.Signals
 @using VeriShip.Application.Features.Signals.Models
 
 <PageTitle>@ProjectNumber Certifications</PageTitle>
 
-@Notebook?.Description
-@Notebook?.CanRead
+
 @code {
 
     [Parameter] public string ProjectNumber { get; set; } = string.Empty;
     [CascadingParameter] private Task<AuthenticationState>? AuthState { get; set; }
     [Inject] public required ISignalsStore SignalsStore { get; set; }
 
-    private Notebook? Notebook { get; set; }
+    private Result<Notebook> NotebookResult { get; set; }
     
     protected override async Task OnParametersSetAsync()
     {
@@ -22,14 +22,11 @@
             var authState = await AuthState;
             if (authState.User.Identity?.Name != null)
             {
-                Notebook = await SignalsStore.Query(new GetNotebook(ProjectNumber, authState.User.Identity?.Name));
+                NotebookResult = await SignalsStore.Query(new GetNotebook(ProjectNumber, authState.User.Identity?.Name));
             }
         }
-
-        if (Notebook == null)
-        {
-            
-        }
+        
+     
     }
 
 

@@ -1,20 +1,34 @@
 ﻿
 @using Microsoft.AspNetCore.Components.Authorization
+@using VeriShip.WebApp.Services
 @inherits LayoutComponentBase
-
+@inject INotifications Notifications
 <ErrorBoundary>
     <ChildContent>
 
         <TelerikRootComponent>
+            <TelerikNotification
+                @ref="@Notifications.NotificationRef"
+                
+                VerticalPosition="NotificationVerticalPosition.Top"
+                Class="notification-container">
+                <Template>
+                    <div class="notification-content">
+                        <p class="notification-message">@context.Text</p>
+                   
+                    </div>
+                </Template>
+
+            </TelerikNotification>
             <AppHeader/>
 
 
             <AuthorizeView>
                 <Authorized>
-                    <div class="main-content" >
-                        
+                    <div class="main-content">
+
                         @Body
-                   
+
                     </div>
                 </Authorized>
                 <NotAuthorized>
@@ -31,7 +45,7 @@
 
                 </NotAuthorized>
             </AuthorizeView>
-            <AppFooter ></AppFooter>
+            <AppFooter></AppFooter>
             <div id="blazor-error-ui" data-nosnippet>
                 An unhandled error has occurred.
                 <a href="." class="reload">Reload</a>

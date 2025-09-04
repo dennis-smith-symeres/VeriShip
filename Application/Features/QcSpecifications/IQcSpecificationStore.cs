@@ -1,3 +1,4 @@
+using Ardalis.Result;
 using VeriShip.Application.Features.QcSpecifications.Commands;
 using VeriShip.Application.Features.QcSpecifications.Queries;
 using VeriShip.Domain.Entities.QCSpecifications;
@@ -7,7 +8,7 @@ namespace VeriShip.Application.Features.QcSpecifications;
 
 public interface IQcSpecificationStore
 {
-    Task<IEnumerable<QcSpecification>> Query(GetAll request, CancellationToken cancellationToken);
-    Task<int> Handle(Upsert command, CancellationToken cancellationToken);
-    Task<int> Handle(Sort command, CancellationToken cancellationToken);
+    Task<Result<IEnumerable<QcSpecification>>> Query(GetAll request, CancellationToken cancellationToken);
+    Task<Result<int>> Handle(Upsert command, CancellationToken cancellationToken);
+    Task<Result<int>> Handle(Sort command, CancellationToken cancellationToken);
 }

@@ -4,6 +4,8 @@
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 @using VeriShip.Application.Features.Projects
 @using VeriShip.Application.Features.Projects.Queries
+@using VeriShip.Application.Features.Signals
+@using VeriShip.WebApp.Services
 
 <PageTitle>Home</PageTitle>
 <div class="content">
@@ -12,7 +14,7 @@
         Text="Checking project number"
         >
     </TelerikLoaderContainer>
-    <TelerikForm
+    <TelerikForm 
         Model="@ProjectModel"
         OnValidSubmit="@OnValidSubmitHandler"
         ValidationMessageType="@FormValidationMessageType.Tooltip">
@@ -42,7 +44,9 @@
 
     [Inject] public required NavigationManager NavigationManager  { get; set; }
     [Inject] public required ProtectedLocalStorage LocalStorage { get; set; }
-
+    [Inject] public required ISignalsStore SignalsStore { get; set; }
+    [Inject] public required INotifications Notifications { get; set; }
+  
     [CascadingParameter] private Task<AuthenticationState>? AuthState { get; set; }
     
     private GetProject ProjectModel { get; set; } = new()
@@ -50,13 +54,16 @@
         User = string.Empty,
         ProjectNumber = string.Empty
     };
-    private bool IsLoading {
+
+    private bool IsLoading
+    {
         get;
         set;
-    }
+    } = true;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        
         if (firstRender)
         {
             if (AuthState != null)
@@ -79,6 +86,7 @@
                 Console.WriteLine(e);
             }
 
+            IsLoading = false;
             StateHasChanged();
         }
     }
@@ -86,15 +94,35 @@
 
     private List<string> Notebooks { get; set; } = [];
 
-    private Task OnValidSubmitHandler(EditContext editContext)
+    private async Task OnValidSubmitHandler(EditContext editContext)
     {
+        IsLoading = true;
+        StateHasChanged();
+        if (AuthState != null)
+        {
+            var authState = await AuthState;
+            if (authState.User.Identity?.Name != null)
+            {
+                var notebook = await SignalsStore.Query(new GetNotebook(ProjectModel.ProjectNumber, authState.User.Identity?.Name));
+                if (notebook.IsSuccess)
+                {
+                    NavigationManager.NavigateTo($"/{ProjectModel.ProjectNumber}/certifications");
+                   
+                } else
+                {
+                    Notifications.Show(new()
+                    {
+                        ThemeColor =  ThemeConstants.Notification.ThemeColor.Error,
+                        Text =  $"Journal {ProjectModel.ProjectNumber} was {notebook.Status}"
+                   
+                    });
+                }
+            }
+        }
+        IsLoading = false;
+        StateHasChanged();
         
-        NavigationManager.NavigateTo($"/{ProjectModel.ProjectNumber}/certifications");
-        
-        //some logic when the form is valid.
-        Console.WriteLine("valid submission, you can save the model");
-        Console.WriteLine(ProjectModel.ProjectNumber);
-        return Task.CompletedTask;
+    
     }
 
    

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NeoSmart.Caching.Sqlite;
 using RefitClient;
@@ -14,14 +15,16 @@ namespace VeriShip.Application;
 public static class DependencyInjection
 {
     
-    public static IServiceCollection AddApplication(this IServiceCollection services)
+    public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<IQcSpecificationStore, QcSpecificationStore>();
         services.AddScoped<IProjectStore, ProjectStore>();
         services.AddScoped<ISignalsStore, SignalsStore>();
         services.AddSignalsClient();
+        services.Configure<RefitOptions>(configuration.GetSection("Signals"));
         services.AddMemoryCache();
-        
+        var cachePath = configuration.GetConnectionString("VeriShipCache");
+        Console.WriteLine(cachePath);
         services.AddFusionCache()
             .WithDefaultEntryOptions(new FusionCacheEntryOptions
         {
@@ -36,8 +39,9 @@ public static class DependencyInjection
                 new FusionCacheSystemTextJsonSerializer()
                 )
             .WithDistributedCache(
-                new SqliteCache(new SqliteCacheOptions { CachePath = @"C:\temp\veriship\cache.db" })
+                new SqliteCache(new SqliteCacheOptions { CachePath = cachePath })
             );
+        
         return services;
     }
 

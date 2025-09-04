@@ -13,6 +13,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="Ardalis.Result" Version="10.1.0" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.8" />
       <PackageReference Include="NeoSmart.Caching.Sqlite.AspNetCore" Version="9.0.1" />
       <PackageReference Include="ZiggyCreatures.FusionCache" Version="2.4.0" />

@@ -162,7 +162,10 @@
         {
             Table = Table
         }, CancellationToken.None);
-        QcSpecifications = query.ToList();
+  
+
+            QcSpecifications = query.Value.ToList();
+      
     }
 
     async Task UpdateHandler(GridCommandEventArgs args)
@@ -177,7 +180,8 @@
         var authState = await AuthState;
         if (authState.User.Identity?.Name != null)
         {
-            await QcSpecificationStore.Handle(new Upsert(authState.User.Identity.Name, data), CancellationToken.None);
+           var result = await QcSpecificationStore.Handle(new Upsert(authState.User.Identity.Name, data), CancellationToken.None);
+           
         }
 
 
