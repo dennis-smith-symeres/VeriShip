@@ -7,8 +7,7 @@ namespace VeriShip.Application.Features.QcSpecifications;
 
 public interface IQcSpecificationStore
 {
-    Task<IEnumerable<QcSpecification>> Handle(GetAll request, CancellationToken cancellationToken);
-    
+    Task<IEnumerable<QcSpecification>> Query(GetAll request, CancellationToken cancellationToken);
     Task<int> Handle(Upsert command, CancellationToken cancellationToken);
     Task<int> Handle(Sort command, CancellationToken cancellationToken);
 }

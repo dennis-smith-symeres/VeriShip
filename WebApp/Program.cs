@@ -2,8 +2,10 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
+using RefitClient;
 using Serilog;
 using VeriShip.Application;
+using VeriShip.Application.Common;
 using VeriShip.Infrastructure;
 using VeriShip.WebApp;
 using VeriShip.WebApp.Components;
@@ -29,16 +31,22 @@ builder.AddkeyVault();
 
 builder.Services.AddControllersWithViews()
     .AddMicrosoftIdentityUI();
+builder.Services.Configure<RefitOptions>(builder.Configuration.GetSection("Signals"));
+
 builder.Services.AddAuthorization();
+builder.Services.AddTelerikBlazor();
+builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddApplication();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddDataProtection()
-    .SetApplicationName("VeriShip");
-builder.Services.AddTelerikBlazor();
-builder.Services.AddInfrastructure(builder.Configuration);
-builder.Services.AddApplication();
+    .SetApplicationName(Settings.ApplicationName);
+
+
+
+// builder.Services.Configure<RefitOptions>(builder.Configuration.GetSection("Signals"));
 
 var app = builder.Build();
 

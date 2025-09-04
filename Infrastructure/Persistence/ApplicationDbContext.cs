@@ -37,7 +37,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             .IsUnique();
     }
     
-    public virtual Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         throw new NotSupportedException("Use method SaveChangesAsync(string userIdentity)");
     }
@@ -59,7 +59,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
 
         var auditEntries = new List<AuditEntry>();
 
-        var en = base.ChangeTracker.Entries();
+ 
         foreach (var entry in base.ChangeTracker.Entries())
         {
             if (entry.Entity is Audit || entry.State == EntityState.Detached ||
@@ -76,13 +76,10 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             };
 
             auditEntries.Add(auditEntry);
-            if (entry.State == EntityState.Added)
+            if (entry is { State: EntityState.Added, Entity: Entity b })
             {
-                if (entry.Entity is Entity b)
-                {
-                    b.CreatedBy = userId;
-                    b.CreatedOn = DateTime.UtcNow;
-                }
+                b.CreatedBy = userId;
+                b.CreatedOn = DateTime.UtcNow;
             }
 
             foreach (var property in entry.Properties)
@@ -96,7 +93,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
                 var propertyName = property.Metadata.Name;
                 if (property.Metadata.IsPrimaryKey())
                 {
-                    //primary key should be id
+            
                     var rowId = (int)(property.CurrentValue ?? 0);
                     auditEntry.RowId = rowId < 0 ? 0 : rowId;
                     continue;
@@ -130,12 +127,12 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
 
                         break;
                     case EntityState.Deleted:
-                        if (entry.Entity is Entity b)
+                        if (entry.Entity is Entity)
                         {
                             entry.State = EntityState.Unchanged;
                             entry.CurrentValues["Active"] = false;
 
-                            auditEntry.Action = EntityState.Deleted.ToString();
+                            auditEntry.Action = nameof(EntityState.Deleted);
                         }
 
                         break;
@@ -146,14 +143,14 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         return auditEntries;
     }
 
-    private Task OnBeforeSave(List<AuditEntry> audits)
+    private Task OnBeforeSave(List<AuditEntry>? audits)
     {
         if (audits == null || audits.Count == 0)
         {
             return Task.CompletedTask;
         }
 
-        foreach (var trail in audits.Where(_ => !_.HasTemporaryProperties))
+        foreach (var trail in audits.Where(a => !a.HasTemporaryProperties))
         {
             Audits.Add(trail.ToAudit());
         }
@@ -163,7 +160,8 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
 
     private Task OnAfterSaveChanges(List<AuditEntry> auditEntries)
     {
-        var auditEntriesWithTemporaryProperties = auditEntries.Where(a => a.HasTemporaryProperties);
+        var auditEntriesWithTemporaryProperties = auditEntries
+            .Where(a => a.HasTemporaryProperties).ToArray();
         if (auditEntriesWithTemporaryProperties.Any() is false)
         {
             return Task.CompletedTask;

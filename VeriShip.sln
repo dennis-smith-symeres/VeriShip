@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "srv", "srv", "{E6B5D773-2120-4749-9E87-E7774FD0526B}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{E6B5D773-2120-4749-9E87-E7774FD0526B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{6E199E4E-3822-487A-A042-8BCA6AED572A}"
 EndProject
@@ -9,6 +9,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "Application\Application.csproj", "{A67571F6-0042-4278-B480-5DA2BCB7D0D1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApp", "WebApp\WebApp.csproj", "{CEA17574-1F0A-4128-B6A7-D9F6693E46BC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RefitClient", "..\..\symeres\elnapi\RefitClient\RefitClient.csproj", "{C1B91F74-056B-4B13-98FE-6EF84782713C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,6 +22,7 @@ Global
 		{18AC329C-C4B8-437D-9A49-851E077E8EC1} = {E6B5D773-2120-4749-9E87-E7774FD0526B}
 		{A67571F6-0042-4278-B480-5DA2BCB7D0D1} = {E6B5D773-2120-4749-9E87-E7774FD0526B}
 		{CEA17574-1F0A-4128-B6A7-D9F6693E46BC} = {E6B5D773-2120-4749-9E87-E7774FD0526B}
+		{C1B91F74-056B-4B13-98FE-6EF84782713C} = {E6B5D773-2120-4749-9E87-E7774FD0526B}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{6E199E4E-3822-487A-A042-8BCA6AED572A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -38,5 +41,9 @@ Global
 		{CEA17574-1F0A-4128-B6A7-D9F6693E46BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CEA17574-1F0A-4128-B6A7-D9F6693E46BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CEA17574-1F0A-4128-B6A7-D9F6693E46BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1B91F74-056B-4B13-98FE-6EF84782713C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1B91F74-056B-4B13-98FE-6EF84782713C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1B91F74-056B-4B13-98FE-6EF84782713C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1B91F74-056B-4B13-98FE-6EF84782713C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

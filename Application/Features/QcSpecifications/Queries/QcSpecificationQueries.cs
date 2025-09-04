@@ -1,4 +1,4 @@
-using VeriShip.Domain.Entities.QCSpecifications;
+﻿using VeriShip.Domain.Entities.QCSpecifications;
 
 namespace VeriShip.Application.Features.QcSpecifications.Queries;
 

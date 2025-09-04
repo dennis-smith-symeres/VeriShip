@@ -14,15 +14,22 @@
 
     <ItemGroup>
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.8" />
+      <PackageReference Include="NeoSmart.Caching.Sqlite.AspNetCore" Version="9.0.1" />
+      <PackageReference Include="ZiggyCreatures.FusionCache" Version="2.4.0" />
+      <PackageReference Include="ZiggyCreatures.FusionCache.Serialization.SystemTextJson" Version="2.4.0" />
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\..\symeres\elnapi\RefitClient\RefitClient.csproj" />
       <ProjectReference Include="..\Domain\Domain.csproj" />
       <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Common\Constants\" />
       <Folder Include="Common\Interfaces\" />
+      <Folder Include="Features\Signals\Queries\" />
+      <Folder Include="Services\" />
     </ItemGroup>
 
 </Project>

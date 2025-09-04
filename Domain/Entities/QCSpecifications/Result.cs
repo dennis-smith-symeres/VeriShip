@@ -9,5 +9,5 @@ public class Result : Entity
     public bool IsDefault { get; set; }
         
     public int CheckId { get; set; }
-    public virtual QcSpecification QcSpecification { get; set; }
+    public virtual QcSpecification? QcSpecification { get; set; }
 }

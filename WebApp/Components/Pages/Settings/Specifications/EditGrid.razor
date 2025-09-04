@@ -158,7 +158,7 @@
 
     private async Task LoadChecks()
     {
-        var query = await QcSpecificationStore.Handle(new GetAll()
+        var query = await QcSpecificationStore.Query(new GetAll()
         {
             Table = Table
         }, CancellationToken.None);
@@ -172,9 +172,9 @@
             return;
         }
 
-        var authState = await AuthState;
         data.Table = Table;
 
+        var authState = await AuthState;
         if (authState.User.Identity?.Name != null)
         {
             await QcSpecificationStore.Handle(new Upsert(authState.User.Identity.Name, data), CancellationToken.None);

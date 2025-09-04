@@ -14,5 +14,5 @@ public partial class Audit
     
     public virtual List<Field> NewValues { get; set; } = new();
     
-    public string Action { get; set; }
+    public required string Action { get; set; }
 }

@@ -1,4 +1,102 @@
 ﻿@page "/"
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@using VeriShip.Application.Features.Projects
+@using VeriShip.Application.Features.Projects.Queries
 
 <PageTitle>Home</PageTitle>
+<div class="content">
+    <TelerikLoaderContainer 
+        Visible="@IsLoading" 
+        Text="Checking project number"
+        >
+    </TelerikLoaderContainer>
+    <TelerikForm
+        Model="@ProjectModel"
+        OnValidSubmit="@OnValidSubmitHandler"
+        ValidationMessageType="@FormValidationMessageType.Tooltip">
+        <FormValidation>
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+        </FormValidation>
+        <FormItems>
+            <FormItem Field="@nameof(GetProject.ProjectNumber)" LabelText="ProjectNumber"/>
+        </FormItems>
+    </TelerikForm>
+    <div>
 
+        <label>Previous project numbers</label>
+
+        @foreach (var notebook in Notebooks)
+        {
+            <p>
+                <a href="/Project/@notebook">@notebook</a>
+            </p>
+        }
+    </div>
+</div>
+
+
+
+@code {
+
+    [Inject] public required NavigationManager NavigationManager  { get; set; }
+    [Inject] public required ProtectedLocalStorage LocalStorage { get; set; }
+
+    [CascadingParameter] private Task<AuthenticationState>? AuthState { get; set; }
+    
+    private GetProject ProjectModel { get; set; } = new()
+    {
+        User = string.Empty,
+        ProjectNumber = string.Empty
+    };
+    private bool IsLoading {
+        get;
+        set;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (AuthState != null)
+            {
+                var authState = await AuthState;
+                if (authState.User.Identity?.Name != null)
+                {
+                    ProjectModel.User = authState.User.Identity?.Name;
+                  
+                }
+            }
+            try
+            {
+                
+                var storedNotebooks = await LocalStorage.GetAsync<List<string>>("veriship-notebooks");
+                Notebooks = storedNotebooks.Success ? storedNotebooks.Value ?? [] : [];
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+
+            StateHasChanged();
+        }
+    }
+
+
+    private List<string> Notebooks { get; set; } = [];
+
+    private Task OnValidSubmitHandler(EditContext editContext)
+    {
+        
+        NavigationManager.NavigateTo($"/{ProjectModel.ProjectNumber}/certifications");
+        
+        //some logic when the form is valid.
+        Console.WriteLine("valid submission, you can save the model");
+        Console.WriteLine(ProjectModel.ProjectNumber);
+        return Task.CompletedTask;
+    }
+
+   
+
+}

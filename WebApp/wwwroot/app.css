@@ -35,7 +35,7 @@
     --kendo-menu-item-padding-y: 0.25rem;
     --kendo-progressbar-bg:var(--kendo-color-secondary);
     --kendo-upload-dropzone-padding-y: 0;
-
+    --kendo-color-primary-on-surface: var(--kendo-color-primary);
     /*--kendo-toolbar-bg:var(--kendo-color-primary);*/
     /*--kendo-toolbar-text: white;*/
 
@@ -60,6 +60,11 @@
 
 body {
     margin: 0;
+    font-family: 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 #root {

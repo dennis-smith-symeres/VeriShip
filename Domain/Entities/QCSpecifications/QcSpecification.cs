@@ -8,12 +8,12 @@ public class QcSpecification : Field, IValidatableObject
 {
  
     [Required]
-    public string Category { get; set; }
+    public required string Category { get; set; }
 
     public string? Technique { get; set; }
 
     [Required]
-    public string Acceptance { get; set; }
+    public required string Acceptance { get; set; }
 
     [Required]
     public Table Table { get; set; }
