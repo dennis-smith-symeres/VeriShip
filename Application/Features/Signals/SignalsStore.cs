@@ -6,12 +6,13 @@ using RefitClient.Responses;
 using RefitClient.Responses.Data;
 using VeriShip.Application.Features.Signals.Constants;
 using VeriShip.Application.Features.Signals.Models;
+using VeriShip.Application.Features.Signals.Queries;
 using VeriShip.Domain.Entities.QCSpecifications;
 using ZiggyCreatures.Caching.Fusion;
 
 namespace VeriShip.Application.Features.Signals;
 
-public record GetNotebook(string ProjectNumber, string User);
+
 
 public class SignalsStore(IRefitClient client, IFusionCache cache, ILogger<SignalsStore> logger) : ISignalsStore
 {

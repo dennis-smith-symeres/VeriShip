@@ -6,13 +6,19 @@
 @using Telerik.Windows.Documents.Spreadsheet.Expressions.Functions
 @using VeriShip.Application.Features.Signals
 @using VeriShip.Application.Features.Signals.Models
+@using VeriShip.Application.Features.Signals.Queries
 @using VeriShip.WebApp.Constants
 
 <PageTitle>@ProjectNumber Certifications</PageTitle>
 
 @if (NotebookResult.IsSuccess)
 {
-    
+    <div>
+        show requests
+    </div>
+    <div>
+        show shipments
+    </div>
 }
 @if (NotebookResult.IsUnavailable())
 {
@@ -44,7 +50,7 @@
             var authState = await AuthState;
             if (authState.User.Identity?.Name != null)
             {
-                NotebookResult = await SignalsStore.Query(new GetNotebook(ProjectNumber, authState.User.Identity?.Name));
+                NotebookResult = await SignalsStore.Query(new GetNotebook(ProjectNumber, authState.User.Identity?.Name ));
             }
         }
         
