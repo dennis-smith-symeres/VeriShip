@@ -17,33 +17,33 @@
         <CardBody>
             @if (UserResult.IsSuccess)
             {
-                Name = UserResult.Value.Name;
-                HasAccess = UserResult.Value.HasAccess;
-                IsQc = UserResult.Value.IsQc;
-                IsAdmin = UserResult.Value.IsAdmin;
+            
                 
                 <table class="profile-table">
                     <tr>
                         <td><label>Name</label></td>
-                        <td><span>@Name</span></td>
+                        <td><span>@UserResult.Value.DisplayName</span></td>
                     </tr>
-
+                    <tr>
+                        <td><label>Identity</label></td>
+                        <td><span>@UserResult.Value.Name</span></td>
+                    </tr>
                     <tr>
                         <td><label>Access</label></td>
                         <td>
-                            <CheckIcon Checked="@HasAccess"/>
+                            <CheckIcon Checked="@UserResult.Value.HasAccess"/>
                         </td>
                     </tr>
                     <tr>
                         <td><label>QC officer</label></td>
                         <td>
-                            <CheckIcon Checked="@IsQc"/>
+                            <CheckIcon Checked="@UserResult.Value.IsQc"/>
                         </td>
                     </tr>
                     <tr>
                         <td><label>Administrator</label></td>
                         <td>
-                            <CheckIcon Checked="@IsAdmin"/>
+                            <CheckIcon Checked="@UserResult.Value.IsAdmin"/>
                         </td>
                     </tr>
                 </table>
@@ -107,12 +107,6 @@
         await InvokeAsync(StateHasChanged);
     }
 
-    private bool HasAccess { get; set; }
 
-    private bool IsQc { get; set; }
-
-    private bool IsAdmin { get; set; }
-
-    private string? Name { get; set; }
 
 }
