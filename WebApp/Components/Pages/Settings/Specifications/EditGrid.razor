@@ -11,7 +11,7 @@
 
 
 <TelerikGrid Data="@QcSpecifications"
-             
+
              EditMode="@GridEditMode.Inline"
              OnUpdate="@UpdateHandler"
              OnCancel="@CancelHandler"
@@ -41,19 +41,20 @@
         </GridColumn>
         @if (Table == Table.Tests)
         {
-            <GridColumn Field="@nameof(QcSpecification.Technique)" Title="Technique" Width="150px" >
+            <GridColumn Field="@nameof(QcSpecification.Technique)" Title="Technique" Width="150px">
                 <EditorTemplate>
-                @{
-                    CurrentlyEditedTeam = @context as QcSpecification;
-                    <TelerikAutoComplete Data="@QcSpecifications.Select(x => x.Technique)"
-                                         @bind-Value="@CurrentlyEditedTeam!.Technique"
+                    @{
+                        CurrentlyEditedTeam = @context as QcSpecification;
+                        <TelerikAutoComplete Data="@QcSpecifications.Select(x => x.Technique)"
+                                             @bind-Value="@CurrentlyEditedTeam!.Technique"
 
-                                         ShowClearButton="true"/>
-                }
-                    </EditorTemplate>
+                                             ShowClearButton="true"/>
+                    }
+                </EditorTemplate>
             </GridColumn>
         }
-        <GridColumn Field="@nameof(QcSpecification.Acceptance)" Title="@(Table == Table.Tests ? "Acceptance" : "Label")" Width="150px">
+        <GridColumn Field="@nameof(QcSpecification.Acceptance)" Title="@(Table == Table.Tests ? "Acceptance" : "Label")"
+                    Width="150px">
             <EditorTemplate>
                 @{
                     CurrentlyEditedTeam = @context as QcSpecification;
@@ -65,10 +66,10 @@
             </EditorTemplate>
         </GridColumn>
         <GridColumn Field="@nameof(QcSpecification.SpecialField)"
-                    Title="SpecialField" 
-               
-                                  Width="150px"
-                    Editable="false" ></GridColumn>
+                    Title="SpecialField"
+
+                    Width="150px"
+                    Editable="false"></GridColumn>
 
         <GridColumn Field="@nameof(QcSpecification.Values)">
             <Template>
@@ -143,7 +144,7 @@
 
     [Inject] IQcSpecificationStore QcSpecificationStore { get; set; } = null!;
     [CascadingParameter] private Task<AuthenticationState>? AuthState { get; set; }
- 
+
     [Parameter] public Table Table { get; set; }
     [Parameter] public List<QcSpecification> QcSpecifications { get; set; } = [];
 
@@ -162,10 +163,9 @@
         {
             Table = Table
         }, CancellationToken.None);
-  
 
-            QcSpecifications = query.Value.ToList();
-      
+
+        QcSpecifications = query.Value.ToList();
     }
 
     async Task UpdateHandler(GridCommandEventArgs args)
@@ -178,11 +178,8 @@
         data.Table = Table;
 
         var authState = await AuthState;
-        if (authState.User.Identity?.Name != null)
-        {
-           var result = await QcSpecificationStore.Handle(new Upsert(authState.User.Identity.Name, data), CancellationToken.None);
-           
-        }
+
+        var result = await QcSpecificationStore.Handle(new Upsert(authState.User, data), CancellationToken.None);
 
 
         await LoadChecks();
@@ -193,7 +190,6 @@
         CurrentlyEditedTeam?.Values.Add("");
     }
 
-  
 
     private void CancelHandler(GridCommandEventArgs obj)
     {
@@ -224,15 +220,13 @@
                 .SelectMany(group => group.OrderBy(item =>
                 {
                     var index = Array.IndexOf(order, item.Id);
-                    return index < 0 ? int.MaxValue : index; 
+                    return index < 0 ? int.MaxValue : index;
                 }))
                 .ToList();
 
-            if (authState.User.Identity?.Name != null)
-            {
-                var command = new Sort(authState.User.Identity.Name, Table, QcSpecifications.Select(x => x.Id).ToArray());
-                await QcSpecificationStore.Handle(command, CancellationToken.None);
-            }
+
+            var command = new Sort(authState.User, Table, QcSpecifications.Select(x => x.Id).ToArray());
+            await QcSpecificationStore.Handle(command, CancellationToken.None);
         }
 
 

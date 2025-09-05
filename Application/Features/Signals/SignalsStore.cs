@@ -4,6 +4,7 @@ using RefitClient;
 using RefitClient.Queries;
 using RefitClient.Responses;
 using RefitClient.Responses.Data;
+using VeriShip.Application.Common;
 using VeriShip.Application.Features.Signals.Constants;
 using VeriShip.Application.Features.Signals.Models;
 using VeriShip.Application.Features.Signals.Queries;
@@ -18,8 +19,14 @@ public class SignalsStore(IRefitClient client, IFusionCache cache, ILogger<Signa
 {
     public async Task<Result<Notebook>> Query(GetNotebook request)
     {
+        var userResult = request.ClaimsPrincipal.ToUserResult();
+        if (!userResult.IsSuccess)
+        {
+            return userResult.Map();
+        }
         var projectNumber = request.ProjectNumber;
-        var user = request.User;
+        var user = userResult.Value.Name;
+        
         try
         {
             var journalResponse = await cache.GetOrSetAsync(

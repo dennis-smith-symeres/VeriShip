@@ -65,7 +65,7 @@
                 var authState = await AuthState;
                 if (authState.User.Identity?.Name != null)
                 {
-                    NotebookModel.User = authState.User.Identity?.Name;
+                    NotebookModel.ClaimsPrincipal = authState.User;
                 }
             }
 

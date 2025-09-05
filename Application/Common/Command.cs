@@ -1,3 +1,6 @@
-﻿namespace VeriShip.Application.Common;
+﻿using System.Security.Claims;
+using Ardalis.Result;
 
-public abstract record Command(string User);
+namespace VeriShip.Application.Common;
+
+public abstract record Command(ClaimsPrincipal ClaimsPrincipal);

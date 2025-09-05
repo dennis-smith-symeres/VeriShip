@@ -33,4 +33,10 @@
       <Folder Include="Services\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Reference Include="Microsoft.AspNetCore.Components.Authorization">
+        <HintPath>C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App\10.0.0-preview.7.25380.108\Microsoft.AspNetCore.Components.Authorization.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
 </Project>

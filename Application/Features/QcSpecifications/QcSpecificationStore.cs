@@ -1,10 +1,12 @@
 ﻿using Ardalis.Result;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using VeriShip.Application.Common;
 using VeriShip.Application.Features.QcSpecifications.Commands;
 using VeriShip.Application.Features.QcSpecifications.Queries;
 using VeriShip.Domain.Entities.QCSpecifications;
 using VeriShip.Infrastructure.Persistence;
+using Result = Ardalis.Result.Result;
 using Sort = VeriShip.Application.Features.QcSpecifications.Commands.Sort;
 
 namespace VeriShip.Application.Features.QcSpecifications;
@@ -42,6 +44,11 @@ public class QcSpecificationStore(IApplicationDbContextFactory dbContextFactory,
 
     public async Task<Result<int>> Handle(Upsert command, CancellationToken cancellationToken)
     {
+        var userResult = command.ClaimsPrincipal.ToUserResult();
+        if (!userResult.IsSuccess )
+        {
+            return userResult.Map();
+        }
         
         var db = await dbContextFactory.CreateAsync(cancellationToken);
 
@@ -78,7 +85,7 @@ public class QcSpecificationStore(IApplicationDbContextFactory dbContextFactory,
 
         try
         {
-            await db.SaveChangesAsync(command.User, cancellationToken);
+            await db.SaveChangesAsync(userResult.Value.Name, cancellationToken);
         }
         catch (Exception e)
         {
@@ -92,6 +99,11 @@ public class QcSpecificationStore(IApplicationDbContextFactory dbContextFactory,
 
     public async Task<Result<int>> Handle(Sort command, CancellationToken cancellationToken)
     {
+        var userResult = command.ClaimsPrincipal.ToUserResult();
+        if (!userResult.IsSuccess)
+        {
+            return userResult.Map();
+        }
         var db = await dbContextFactory.CreateAsync(cancellationToken);
         var sort = await db.QcSpecificationsSort.FirstOrDefaultAsync(x => x.Table == command.Table,
             cancellationToken: cancellationToken);
@@ -110,7 +122,7 @@ public class QcSpecificationStore(IApplicationDbContextFactory dbContextFactory,
 
         try
         {
-            await db.SaveChangesAsync(command.User, cancellationToken);
+            await db.SaveChangesAsync(userResult.Value.Name, cancellationToken);
         }
         catch (Exception e)
         {

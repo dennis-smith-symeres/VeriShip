@@ -1,63 +1,110 @@
 ﻿@page "/Profile"
 @using System.Security.Claims
+@using Ardalis.Result
+@using Humanizer
 @using Microsoft.AspNetCore.Components.Authorization
 @using VeriShip.Application.Common
-
+@using VeriShip.WebApp.Services
+@implements IDisposable
+<div style="display: flex; gap: 1rem;width:100%; flex-direction: column;align-items: center;">
 
     <TelerikCard>
         <CardHeader>
             <CardTitle>
-              Profile
+                Profile
             </CardTitle>
-            <CardBody>
+        </CardHeader>
+        <CardBody>
+            @if (UserResult.IsSuccess)
+            {
+                Name = UserResult.Value.Name;
+                HasAccess = UserResult.Value.HasAccess;
+                IsQc = UserResult.Value.IsQc;
+                IsAdmin = UserResult.Value.IsAdmin;
+                
                 <table class="profile-table">
                     <tr>
                         <td><label>Name</label></td>
                         <td><span>@Name</span></td>
                     </tr>
-  
-                        <tr>
-                            <td><label>Access</label></td>
-                            <td><CheckIcon Checked="@HasAccess" /></td>
-                        </tr>
+
+                    <tr>
+                        <td><label>Access</label></td>
+                        <td>
+                            <CheckIcon Checked="@HasAccess"/>
+                        </td>
+                    </tr>
                     <tr>
                         <td><label>QC officer</label></td>
-                        <td><CheckIcon Checked="@IsQc" /></td>
+                        <td>
+                            <CheckIcon Checked="@IsQc"/>
+                        </td>
                     </tr>
                     <tr>
                         <td><label>Administrator</label></td>
-                        <td><CheckIcon Checked="@IsAdmin" /></td>
+                        <td>
+                            <CheckIcon Checked="@IsAdmin"/>
+                        </td>
                     </tr>
                 </table>
+            } 
+            @if (!UserResult.IsSuccess)
+            {
+                <p>
+                    @UserResult.Status.Humanize()
+                </p>
+            }
 
-               
 
-            </CardBody>
-        </CardHeader>
+        </CardBody>
+
     </TelerikCard>
-  
+    <TelerikCard>
+        <CardHeader>
+            <CardTitle>
+                Connected users
+            </CardTitle>
+        </CardHeader>
+        <CardBody>
+
+            <ul>
+                @foreach (var user in UsersStateContainer.UsersByConnectionId)
+                {
+                    <li>@user.Value</li>
+                }
+
+            </ul>
+
+        </CardBody>
+    </TelerikCard>
+</div>
+
 
 @code {
 
+    [Inject] public IUsersStateContainer UsersStateContainer { get; set; }
     [CascadingParameter] private Task<AuthenticationState>? AuthState { get; set; }
-
     private IEnumerable<Claim> Claims { get; set; } = [];
-    
+
+    public Result<AuthenticatedUser> UserResult { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        if (AuthState == null)
-        {
-            return;
-        }
+        UsersStateContainer.OnChange += OnMyChangeHandler;
+        var auth = await AuthState;
+        UserResult = auth.User.ToUserResult();
+    }
 
-        var authState = await AuthState;
-        Claims = authState.User.Claims.ToArray();
-        Name = Claims.FirstOrDefault(c => c.Type == "name")?.Value;
-        IsAdmin = Claims.Any(c => c is { Type: ClaimTypes.Role, Value: Roles.Admin });
-        IsQc = Claims.Any(c => c is { Type: ClaimTypes.Role, Value: Roles.Officer});
-        HasAccess =  Claims.Any(c => c is { Type: ClaimTypes.Role, Value: Roles.Access});
-    
+
+    public void Dispose()
+    {
+        UsersStateContainer.OnChange -= OnMyChangeHandler;
+    }
+
+    private async void OnMyChangeHandler()
+    {
+        // invoke on ui thread
+        await InvokeAsync(StateHasChanged);
     }
 
     private bool HasAccess { get; set; }

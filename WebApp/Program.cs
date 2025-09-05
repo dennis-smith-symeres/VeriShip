@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
@@ -45,7 +46,8 @@ builder.Services.AddRazorComponents()
 builder.Services.AddDataProtection()
     .SetApplicationName(Settings.ApplicationName);
 
-
+builder.Services.AddSingleton<IUsersStateContainer, UsersStateContainer>();
+builder.Services.AddScoped<CircuitHandler, TrackingCircuitHandler>();
 
 // builder.Services.Configure<RefitOptions>(builder.Configuration.GetSection("Signals"));
 

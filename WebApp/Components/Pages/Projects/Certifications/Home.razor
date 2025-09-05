@@ -22,13 +22,13 @@
 }
 @if (NotebookResult.IsUnavailable())
 {
-   <TelerikLoader></TelerikLoader>
+    <TelerikLoader></TelerikLoader>
 }
 @if (!NotebookResult.IsSuccess && !NotebookResult.IsUnavailable())
 {
     <h2>
-        Journal @ProjectNumber 
-    </h2> 
+        Journal @ProjectNumber
+    </h2>
     <p>
         @NotebookResult.Status.Humanize()
     </p>
@@ -40,21 +40,17 @@
     [CascadingParameter] private Task<AuthenticationState>? AuthState { get; set; }
     [Inject] public required ISignalsStore SignalsStore { get; set; }
     [Inject] public required ProtectedLocalStorage LocalStorage { get; set; }
-    
+
     private Result<Notebook> NotebookResult { get; set; } = Result.Unavailable();
-    
+
     protected override async Task OnParametersSetAsync()
     {
         if (AuthState != null)
         {
             var authState = await AuthState;
-            if (authState.User.Identity?.Name != null)
-            {
-                NotebookResult = await SignalsStore.Query(new GetNotebook(ProjectNumber, authState.User.Identity?.Name ));
-            }
+
+            NotebookResult = await SignalsStore.Query(new GetNotebook(ProjectNumber, authState.User));
         }
-        
-     
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -66,23 +62,22 @@
             {
                 var storedNotebooks = await LocalStorage.GetAsync<List<string>>(LocalStorageKeys.VerishipNotebooks);
                 notebooks = storedNotebooks.Success ? storedNotebooks.Value : [];
-             
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-              
             }
+
             if (notebooks.Contains(ProjectNumber))
             {
                 notebooks.Remove(ProjectNumber);
             }
+
             notebooks.Insert(0, ProjectNumber);
             notebooks = notebooks.Take(5).ToList();
-            
+
             await LocalStorage.SetAsync(LocalStorageKeys.VerishipNotebooks, notebooks);
         }
-     
     }
 
 
