@@ -60,7 +60,7 @@ public class SignalsStore(IRefitClient client, IFusionCache cache, ILogger<Signa
             {
                 return Result<Notebook>.Forbidden();
             }
-
+            
             return new(new Notebook()
             {
                 Description = journalResponse.Data[0].Attributes.Description,

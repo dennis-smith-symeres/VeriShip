@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VeriShip.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using VeriShip.Infrastructure.Persistence;
 namespace VeriShip.WebApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250908132148_Models2")]
+    partial class Models2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -507,7 +510,7 @@ namespace VeriShip.WebApp.Migrations
                     b.ToTable("Projects");
                 });
 
-            modelBuilder.Entity("VeriShip.Domain.Entities.QCSpecifications.ProjectResult", b =>
+            modelBuilder.Entity("VeriShip.Domain.Entities.Projects.Result", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -960,7 +963,7 @@ namespace VeriShip.WebApp.Migrations
                     b.Navigation("Box");
                 });
 
-            modelBuilder.Entity("VeriShip.Domain.Entities.QCSpecifications.ProjectResult", b =>
+            modelBuilder.Entity("VeriShip.Domain.Entities.Projects.Result", b =>
                 {
                     b.HasOne("VeriShip.Domain.Entities.Projects.Project", "Project")
                         .WithMany("Results")

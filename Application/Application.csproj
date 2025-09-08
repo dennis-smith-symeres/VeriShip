@@ -29,7 +29,6 @@
     <ItemGroup>
       <Folder Include="Common\Constants\" />
       <Folder Include="Common\Interfaces\" />
-      <Folder Include="Features\Projects\Queries\" />
       <Folder Include="Services\" />
     </ItemGroup>
 

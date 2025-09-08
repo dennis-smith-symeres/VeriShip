@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VeriShip.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using VeriShip.Infrastructure.Persistence;
 namespace VeriShip.WebApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250908132748_Models3")]
+    partial class Models3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -504,7 +507,7 @@ namespace VeriShip.WebApp.Migrations
                     b.HasIndex("ProjectNumber")
                         .IsUnique();
 
-                    b.ToTable("Projects");
+                    b.ToTable("Project");
                 });
 
             modelBuilder.Entity("VeriShip.Domain.Entities.QCSpecifications.ProjectResult", b =>
@@ -549,7 +552,7 @@ namespace VeriShip.WebApp.Migrations
                     b.HasIndex("ProjectId", "CheckId")
                         .IsUnique();
 
-                    b.ToTable("ProjectQcRequestItemResults");
+                    b.ToTable("ProjectResult");
                 });
 
             modelBuilder.Entity("VeriShip.Domain.Entities.QCSpecifications.QcSpecification", b =>

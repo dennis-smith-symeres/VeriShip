@@ -5,6 +5,7 @@ using NeoSmart.Caching.Sqlite;
 using RefitClient;
 using VeriShip.Application.Features;
 using VeriShip.Application.Features.Projects;
+using VeriShip.Application.Features.QcRequests;
 using VeriShip.Application.Features.QcSpecifications;
 using VeriShip.Application.Features.Signals;
 using ZiggyCreatures.Caching.Fusion;
@@ -20,6 +21,7 @@ public static class DependencyInjection
         services.AddScoped<IQcSpecificationStore, QcSpecificationStore>();
         services.AddScoped<IProjectStore, ProjectStore>();
         services.AddScoped<ISignalsStore, SignalsStore>();
+        services.AddScoped<IQcRequestStore, QcRequestStore>();
         services.AddSignalsClient();
         services.Configure<RefitOptions>(configuration.GetSection("Signals"));
         services.AddMemoryCache();

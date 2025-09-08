@@ -4,33 +4,40 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 @using Telerik.Windows.Documents.Spreadsheet.Expressions.Functions
+@using VeriShip.Application.Features.Projects
+@using VeriShip.Application.Features.Projects.Queries
+@using VeriShip.Application.Features.QcRequests
+@using VeriShip.Application.Features.QcRequests.Queries
 @using VeriShip.Application.Features.Signals
 @using VeriShip.Application.Features.Signals.Models
 @using VeriShip.Application.Features.Signals.Queries
+@using VeriShip.Domain.Entities.Projects
+@using VeriShip.Domain.Entities.QcRequests
+@using VeriShip.WebApp.Components.Pages.Projects.Certifications._
 @using VeriShip.WebApp.Constants
 
 <PageTitle>@ProjectNumber Certifications</PageTitle>
 
-@if (NotebookResult.IsSuccess)
+@if (QcRequestsResult.IsSuccess)
 {
     <div>
-        show requests
+    <RequestsTable Requests="@QcRequestsResult.Value"></RequestsTable>
     </div>
     <div>
         show shipments
     </div>
 }
-@if (NotebookResult.IsUnavailable())
+@if (QcRequestsResult.IsUnavailable())
 {
     <TelerikLoader></TelerikLoader>
 }
-@if (!NotebookResult.IsSuccess && !NotebookResult.IsUnavailable())
+@if (!QcRequestsResult.IsSuccess && !QcRequestsResult.IsUnavailable())
 {
     <h2>
         Journal @ProjectNumber
     </h2>
     <p>
-        @NotebookResult.Status.Humanize()
+        @QcRequestsResult.Status.Humanize()
     </p>
 }
 
@@ -38,24 +45,23 @@
 
     [Parameter] public string ProjectNumber { get; set; } = string.Empty;
     [CascadingParameter] private Task<AuthenticationState>? AuthState { get; set; }
-    [Inject] public required ISignalsStore SignalsStore { get; set; }
+    [Inject] public required IQcRequestStore QcRequestStore { get; set; }
     [Inject] public required ProtectedLocalStorage LocalStorage { get; set; }
 
-    private Result<Notebook> NotebookResult { get; set; } = Result.Unavailable();
+    private Result<IEnumerable<QcRequest>> QcRequestsResult { get; set; } = Result.Unavailable();
 
     protected override async Task OnParametersSetAsync()
     {
         if (AuthState != null)
         {
             var authState = await AuthState;
-
-            NotebookResult = await SignalsStore.Query(new GetNotebook(ProjectNumber, authState.User));
+            QcRequestsResult = await QcRequestStore.Query(new GetRequests(ProjectNumber, authState.User));
         }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (NotebookResult is { IsSuccess: true, Value.CanRead: true })
+        if (QcRequestsResult is { IsSuccess: true})
         {
             List<string> notebooks = [];
             try

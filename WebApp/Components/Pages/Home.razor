@@ -3,6 +3,7 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 @using VeriShip.Application.Features.Projects
+@using VeriShip.Application.Features.Projects.Queries
 @using VeriShip.Application.Features.Signals
 @using VeriShip.Application.Features.Signals.Queries
 @using VeriShip.WebApp.Constants
@@ -16,14 +17,14 @@
     >
     </TelerikLoaderContainer>
     <TelerikForm
-        Model="@NotebookModel"
+        Model="@ProjectModel"
         OnValidSubmit="@OnValidSubmitHandler"
         ValidationMessageType="@FormValidationMessageType.Tooltip">
         <FormValidation>
             <DataAnnotationsValidator></DataAnnotationsValidator>
         </FormValidation>
         <FormItems>
-            <FormItem Field="@nameof(NotebookModel.ProjectNumber)" LabelText="ProjectNumber"/>
+            <FormItem Field="@nameof(ProjectModel.ProjectNumber)" LabelText="ProjectNumber"/>
         </FormItems>
     </TelerikForm>
     <div>
@@ -46,12 +47,12 @@
 
     [Inject] public required NavigationManager NavigationManager { get; set; }
     [Inject] public required ProtectedLocalStorage LocalStorage { get; set; }
-    [Inject] public required ISignalsStore SignalsStore { get; set; }
+    [Inject] public required IProjectStore Store { get; set; }
     [Inject] public required INotifications Notifications { get; set; }
 
     [CascadingParameter] private Task<AuthenticationState>? AuthState { get; set; }
 
-    private GetNotebook NotebookModel { get; set; } = new();
+    private GetProject ProjectModel { get; set; } = new();
 
 
     private bool IsLoading { get; set; } = true;
@@ -65,7 +66,7 @@
                 var authState = await AuthState;
                 if (authState.User.Identity?.Name != null)
                 {
-                    NotebookModel.ClaimsPrincipal = authState.User;
+                    ProjectModel.ClaimsPrincipal = authState.User;
                 }
             }
 
@@ -92,17 +93,17 @@
         IsLoading = true;
         StateHasChanged();
 
-        var notebook = await SignalsStore.Query(NotebookModel);
+        var notebook = await Store.Query(ProjectModel, CancellationToken.None);
         if (notebook.IsSuccess)
         {
-            NavigationManager.NavigateTo($"/{NotebookModel.ProjectNumber}/certifications");
+            NavigationManager.NavigateTo($"/{ProjectModel.ProjectNumber}/certifications");
         }
         else
         {
             Notifications.Show(new()
             {
                 ThemeColor = ThemeConstants.Notification.ThemeColor.Error,
-                Text = $"Journal {NotebookModel.ProjectNumber} was {notebook.Status}"
+                Text = $"Journal {ProjectModel.ProjectNumber} was {notebook.Status}"
             });
         }
 

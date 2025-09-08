@@ -10,8 +10,4 @@
         <Product>VeriShip.Domain</Product>
     </PropertyGroup>
 
-    <ItemGroup>
-      <Folder Include="Entities\" />
-    </ItemGroup>
-
 </Project>
