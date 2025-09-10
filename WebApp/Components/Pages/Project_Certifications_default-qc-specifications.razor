@@ -1,8 +1,10 @@
 ﻿@page "/{ProjectNumber}/certifications/default-qc-specifications"
 @using System.Collections.ObjectModel
+@using System.Security.Claims
 @using Microsoft.AspNetCore.Components.Authorization
 @using Telerik.SvgIcons
 @using VeriShip.Application.Features.Projects
+@using VeriShip.Application.Features.Projects.Commands
 @using VeriShip.Application.Features.Projects.Queries
 @using VeriShip.Application.Features.QcSpecifications
 @using VeriShip.Application.Features.QcSpecifications.Queries
@@ -79,7 +81,7 @@
 @code {
 
     [Parameter] public string ProjectNumber { get; set; } = string.Empty;
-    [CascadingParameter] private Task<AuthenticationState>? AuthState { get; set; }
+    [CascadingParameter] public required Task<AuthenticationState> AuthState { get; set; }
     [Inject] public required IProjectStore ProjectStore { get; set; }
     [Inject] public required IQcSpecificationStore QcSpecificationStore { get; set; }
     
@@ -119,8 +121,7 @@
 
     async Task LoadData()
     {
-        if (AuthState != null)
-        {
+     
             var authState = await AuthState;
             QCSpecificationResult = await ProjectStore.Query(new GetDefaultQcSpecifications(ProjectNumber, authState.User));
             if (!QCSpecificationResult.IsSuccess)
@@ -132,11 +133,21 @@
             var gridata = Results.Select(itm => QcResultEditModel.From(itm, QcSpecitications));
             GridData = new ObservableCollection<QcResultEditModel>(gridata.Where(x => x.QcSpecification != null));
 
-        }
     }
 
     private async Task Save()
     {
+      
+            var authState = await AuthState;
+            var result = await ProjectStore.Handle(new SaveDefaultQcSpecifications(
+                ProjectNumber, 
+                authState.User, 
+                GridData.Where(x=>x.Active).Select(QcResultEditModel.ToResult)
+                ));
+                if (result.IsSuccess)
+                {
+                    await LoadData();
+                }
     }
 
     private async Task SetPreviewCoA()
@@ -175,7 +186,7 @@
     {
     
         GridIsInEditMode = obj;
-       Console.WriteLine(obj);
+    
     }
 
 }

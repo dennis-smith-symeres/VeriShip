@@ -68,7 +68,8 @@ public class ProjectStore(
         try
         {
             var db = await dbContextFactory.CreateAsync(cancellationToken);
-            var querySort = await db.QcSpecificationsSort.AsNoTracking().ToListAsync(cancellationToken: cancellationToken);
+            var querySort = await db.QcSpecificationsSort.AsNoTracking()
+                .ToListAsync(cancellationToken: cancellationToken);
             var order = querySort?.SelectMany(x => x.Order).ToArray() ?? [];
             var results = await db.ProjectQcRequestItemResults.AsNoTracking()
                 .Where(x => x.Active)
@@ -115,11 +116,79 @@ public class ProjectStore(
             );
 
 
-            return new( orderedDefaultResults);
+            return new(orderedDefaultResults);
         }
         catch (Exception e)
         {
             return Result<IOrderedEnumerable<QcSpecificationResult>>.Error(e.Message);
         }
+    }
+
+    public async Task<Result<int>> Handle(SaveDefaultQcSpecifications command,
+        CancellationToken cancellationToken = default)
+    {
+        var userResult = command.ClaimsPrincipal.ToUserResult();
+        if (!userResult.IsSuccess)
+        {
+            return userResult.Map();
+        }
+
+        var notebookResult = await signalsStore.Query(command);
+        if (!notebookResult.IsSuccess)
+        {
+            return notebookResult.Map();
+        }
+
+        try
+        {
+            var db = await dbContextFactory.CreateAsync(cancellationToken);
+            var project = await db.Projects
+                .Include(x => x.Results)
+                .FirstOrDefaultAsync(x => x.ProjectNumber == command.ProjectNumber, cancellationToken);
+       
+            // Step 1: Update or add child records
+            foreach (var updatedChild in command.QCResults)
+            {
+                var existingChild = project.Results.FirstOrDefault(c => c.QcSpecificationId == updatedChild.QcSpecificationId);
+                if (existingChild != null)
+                {
+                    // Update existing child
+                    existingChild.Acceptance = updatedChild.Acceptance;
+                    existingChild.Value = updatedChild.Value;
+                    existingChild.Active = true;
+                    // Update other fields as necessary...
+                }
+                else
+                {
+                    // Add new child
+                    project.Results.Add(new ProjectResult()
+                    {
+                        QcSpecificationId = updatedChild.QcSpecificationId,
+                        Active = true,
+                        Acceptance = updatedChild.Acceptance,
+                        Value = updatedChild.Value
+                        // Set other fields as necessary...
+                    });
+                }
+            }
+            // Step 2: Remove child records no longer in the updated list
+            var updatedChildIds = command.QCResults.Select(c => c.QcSpecificationId).ToList();
+            var childrenToRemove = project.Results
+                .Where(existingChild => !updatedChildIds.Contains(existingChild.QcSpecificationId))
+                .ToList();
+
+            foreach (var childToRemove in childrenToRemove)
+            {
+                project.Results.Remove(childToRemove);
+            }
+            await db.SaveChangesAsync(userResult.Value.Name, cancellationToken);
+            return new(project.Id);
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Error getting project");
+            return Result<int>.Error(e.Message);
+        }
+       
     }
 }
