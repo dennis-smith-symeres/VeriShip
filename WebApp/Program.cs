@@ -10,6 +10,7 @@ using VeriShip.Application.Common;
 using VeriShip.Infrastructure;
 using VeriShip.WebApp;
 using VeriShip.WebApp.Components;
+using VeriShip.WebApp.Endpoints;
 using VeriShip.WebApp.Services;
 
 
@@ -29,7 +30,11 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApp(builder.Configuration);
 
 builder.AddkeyVault();
-
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy(Roles.Access, policy =>
+        policy
+            .RequireRole(Roles.Access)
+    );
 
 builder.Services.AddControllersWithViews()
     .AddMicrosoftIdentityUI();
@@ -68,6 +73,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapGroup("api").MapUpload();
 app.UseAntiforgery();
 
 app.MapStaticAssets();

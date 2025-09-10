@@ -1,0 +1,11 @@
+﻿@using VeriShip.Domain.Entities.Attachments
+
+<TelerikGrid Data="@Attachments" >
+    
+</TelerikGrid>
+
+@code {
+    [Parameter] public IEnumerable<Attachment> Attachments { get; set; } = [];
+    
+    
+}

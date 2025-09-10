@@ -1,0 +1,110 @@
+﻿@page "/settings/templates"
+@using Ardalis.Result
+@using Microsoft.AspNetCore.Components.Authorization
+@using VeriShip.Application.Features.Attachments
+@using VeriShip.Application.Features.Attachments.Queries
+@using VeriShip.Application.Features.Settings
+@using VeriShip.Application.Features.Settings.Queries
+@using VeriShip.Domain.Entities.Attachments
+@using VeriShip.Domain.Entities.Settings
+@using VeriShip.WebApp.Components.Settings
+@layout Layout
+
+@inject ISettingsStore SettingsStore
+@inject IAttachmentStore AttachmentStore
+@inject NavigationManager NavigationManager
+
+<TelerikToolBar>
+   
+
+  
+    <ToolBarTemplateItem>
+        <b>Templates</b>
+    </ToolBarTemplateItem>
+    <ToolBarSpacer></ToolBarSpacer>
+    
+</TelerikToolBar>
+
+<div class="content">
+    <TelerikUpload
+        SaveUrl="@SaveUrl"
+        RemoveUrl="@RemoveUrl"
+        AllowedExtensions="@AllowedExtensions"
+        OnUpload="@OnUploadHandler" 
+        OnSuccess="@OnSuccessHandler"
+        AutoUpload="false"
+                 Accept=".docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        MaxFileSize="@MaxFileSize">
+    </TelerikUpload>
+    <ResultTemplate T="Setting" Result="SettingsResult">
+
+            <TelerikTabStrip @bind-ActiveTabIndex="@ActiveTabIndex">
+                <TabStripTab Title="Certificate of analysis">
+                    <TemplateFiles Attachments="@Attachments.Where(x => x.Id == SettingsResult.Value.AttachmentIdCoA)">
+                      
+                    </TemplateFiles>
+                </TabStripTab>
+              
+            </TelerikTabStrip>
+     
+
+    </ResultTemplate>
+  
+</div>
+
+@code {
+    
+    public int MaxFileSize { get; set; } = 4 * 1024 * 1024;
+    public List<string> AllowedExtensions { get; set; } = new List<string>() {".docx"};
+    
+    private int ActiveTabIndex { get; set; }
+    [CascadingParameter] public required Task<AuthenticationState> AuthState { get; set; }
+    public Result<Setting> SettingsResult { get; set; } = Result.Unavailable();
+    public IEnumerable<Attachment> Attachments { get; set; } = [];
+  
+    public string SaveUrl => ToAbsoluteUrl("api/upload/save");
+    public string RemoveUrl => ToAbsoluteUrl("api/upload/remove");
+  
+    private async Task OnUploadHandler(UploadEventArgs args)
+    {
+        //TODO: set attachment type by enum (use as active key)
+        args.RequestHeaders.Add("headerKey", "headerValue"); // for example, token
+        args.RequestData.Add("dataKey", "dataValue"); // for example, new file name
+      
+    }
+    public string ToAbsoluteUrl(string url)
+    {
+        return $"{NavigationManager.BaseUri}{url}";
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        SettingsResult = await SettingsStore.Query(new GetSettings());
+        if (!SettingsResult.IsSuccess)
+        {
+            return;
+        }
+
+        int[] ids =
+        [
+            SettingsResult.Value.AttachmentIdCoA,
+            ..SettingsResult.Value.AttachmentIdsAddressLabels,
+            ..SettingsResult.Value.AttachmentIdsLabels,
+            ..SettingsResult.Value.AttachmentIdsPackingLists
+        ];
+
+        var attachmentsResult = await AttachmentStore.Query(new GetByIds(ids));
+        if (attachmentsResult.IsSuccess)
+        {
+            Attachments = attachmentsResult.Value;
+        }
+        
+    }
+
+
+    private void OnSuccessHandler(UploadSuccessEventArgs obj)
+    {
+        
+    }
+
+}

@@ -37,6 +37,8 @@
     --kendo-upload-dropzone-padding-y: 0;
     --kendo-color-primary-on-surface: var(--kendo-color-primary);
     --kendo-toolbar-bg:var(--dark-blue-very-light);
+    --kendo-menu-border:var(--dark-blue-light);
+    --kendo-menu-border-width:1px;
     /*--kendo-toolbar-text: white;*/
 
     /*--kendo-table-header-bg: var(--kendo-color-primary);*/
@@ -51,6 +53,8 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
+
+
 .k-appbar-top { 
     background-color: white;
 }
@@ -92,6 +96,9 @@ body {
 
 .appHeader {
     box-shadow: 0 .15rem .75rem var(--dark-blue-light);
+}
+.appHeader h2{
+    margin: 0;
 }
 
 .title {
