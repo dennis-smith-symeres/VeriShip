@@ -1,0 +1,181 @@
+﻿@page "/{ProjectNumber}/certifications/default-qc-specifications"
+@using System.Collections.ObjectModel
+@using Microsoft.AspNetCore.Components.Authorization
+@using Telerik.SvgIcons
+@using VeriShip.Application.Features.Projects
+@using VeriShip.Application.Features.Projects.Queries
+@using VeriShip.Application.Features.QcSpecifications
+@using VeriShip.Application.Features.QcSpecifications.Queries
+@using VeriShip.Domain.Entities.QCSpecifications
+@using VeriShip.Infrastructure.Services
+@using VeriShip.Infrastructure.Services.Model.WordProcessor
+@using VeriShip.WebApp.Components.ProjectSettings
+@using VeriShip.WebApp.Models
+@using Table = VeriShip.Domain.Entities.QCSpecifications.Table
+<PageTitle>@ProjectNumber</PageTitle>
+<TelerikToolBar>
+
+    <ToolBarTemplateItem>
+        <b>Default qc specifications</b>
+    </ToolBarTemplateItem>
+    <ToolBarButton Enabled="@CanSave" OnClick="@Save" ThemeColor="@ThemeConstants.Button.ThemeColor.Primary">Save</ToolBarButton>
+    <ToolBarSpacer></ToolBarSpacer>
+    <ToolBarTemplateItem>
+        <MenuSettings ProjectNumber="@ProjectNumber"></MenuSettings>
+    </ToolBarTemplateItem>
+  
+</TelerikToolBar>
+
+<div class="content">
+    <ResultTemplate T="IOrderedEnumerable<Result>" Result="QCSpecificationResult">
+       <TelerikSplitter
+
+    Orientation="@SplitterOrientation.Horizontal">
+    <SplitterPanes>
+        <SplitterPane  Collapsible="true">
+           
+            <EditQcResults
+                OnChange="@UpdateResult"
+                OnChangeIsInEditMode="@OnChangeIsInEditMode"
+                CheckResults="GridData.Where(x => x is { QcSpecification.Table: Table.GeneralInformation })"
+                CoATable="Table.GeneralInformation">
+                <GridColumn Field="QcSpecification.Category" Title="Category" Width="100px"></GridColumn>
+                <GridColumn Field="QcSpecification.Acceptance" Title="Label" Width="100px"></GridColumn>
+            </EditQcResults>
+           
+        
+            <EditQcResults
+                OnChange="@UpdateResult"
+                OnChangeIsInEditMode="@OnChangeIsInEditMode"
+                CheckResults="GridData.Where(x => x is { QcSpecification.Table: Table.Tests })"
+                CoATable="Table.Tests">
+                <GridColumn Field="QcSpecification.Category" Title="Test" Width="100px"></GridColumn>
+                <GridColumn Field="QcSpecification.Technique" Title="Technique" Width="100px"></GridColumn>
+                <GridColumn Field="QcSpecification.Acceptance" Title="Acceptance" Width="200px"></GridColumn>
+            </EditQcResults>
+           
+        </SplitterPane>
+   
+        <SplitterPane Collapsible="true" Size="840px">
+            @* <TelerikPdfViewer *@
+            @*     Zoom="@PdfZoom" *@
+            @*     Width="100%" *@
+            @*     Height="800px" *@
+            @*     Data="@FileData"> *@
+            @*     <PdfViewerToolBar> *@
+            @*         <PdfViewerToolBarZoomTool /> *@
+            @*         <PdfViewerToolBarPagerTool /> *@
+            @*         <PdfViewerToolBarSpacer/> *@
+            @*         <PdfViewerToolBarDownloadTool /> *@
+            @*     </PdfViewerToolBar> *@
+            @* </TelerikPdfViewer> *@
+        </SplitterPane>
+    </SplitterPanes>
+</TelerikSplitter>
+
+    </ResultTemplate>
+</div>
+
+@code {
+
+    [Parameter] public string ProjectNumber { get; set; } = string.Empty;
+    [CascadingParameter] private Task<AuthenticationState>? AuthState { get; set; }
+    [Inject] public required IProjectStore ProjectStore { get; set; }
+    [Inject] public required IQcSpecificationStore QcSpecificationStore { get; set; }
+    
+    public Ardalis.Result.Result<IOrderedEnumerable<Result>> QCSpecificationResult { get; set; } = Ardalis.Result.Result<IOrderedEnumerable<Result>>.Unavailable();
+    public List<QcSpecification> QcSpecitications { get; set; } = [];
+    public List<Result> Results { get; set; } = [];
+    private bool GridIsInEditMode { get; set; }
+    private ObservableCollection<QcResultEditModel> GridData { get; set; } = new();
+    public byte[] FileData { get; set; }
+    
+    private bool CanSave => !GridIsInEditMode && GridData.Any(x => x.IsChanged || x.IsNew || x.IsDeleted);
+
+    protected override async Task OnInitializedAsync()
+    {
+        var qcSpecsGeneral = await QcSpecificationStore.Query(new GetAll()
+        {
+            Table = Table.GeneralInformation
+        });
+        var qcSpecsTest = await QcSpecificationStore.Query(new GetAll()
+        {
+            Table = Table.Tests
+        });
+        if (qcSpecsTest.IsSuccess && qcSpecsGeneral.IsSuccess)
+        {
+            QcSpecitications.AddRange(qcSpecsGeneral.Value);
+            QcSpecitications.AddRange(qcSpecsTest.Value);
+            
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadData();
+      
+
+    }
+
+    async Task LoadData()
+    {
+        if (AuthState != null)
+        {
+            var authState = await AuthState;
+            QCSpecificationResult = await ProjectStore.Query(new GetDefaultQcSpecifications(ProjectNumber, authState.User));
+            if (!QCSpecificationResult.IsSuccess)
+            {
+                return;
+            }
+            Results = QCSpecificationResult.Value.ToList();
+         
+            var gridata = Results.Select(itm => QcResultEditModel.From(itm, QcSpecitications));
+            GridData = new ObservableCollection<QcResultEditModel>(gridata.Where(x => x.QcSpecification != null));
+
+        }
+    }
+
+    private async Task Save()
+    {
+    }
+
+    private async Task SetPreviewCoA()
+    {
+      
+        // var results = GridData.Where(x=>x.Active);
+        // var fields = MergeCoA.From(results, QcSpecitications);
+        // //TODO: check if no fields
+        // var options = new Options()
+        // {
+        //     PathTemplate = PathTemplate
+        // };
+        // var wordProcessor = await WordProcessor.Create(options, fields);
+        // var bytes = wordProcessor
+        //     .PrettifyTables()
+        //     .AddSvg(SvgIcon.Sparkles.ToSvg(4))
+        //     .AddWatermark("Preview")
+        //     .ExportToPdf();
+        // FileData = bytes;
+    }
+    
+    private async Task UpdateResult(QcResultEditModel obj)
+    {
+        var target = GridData.FirstOrDefault(x => x.QcSpecificationId == obj.QcSpecificationId);
+        if (target==null)
+        {
+            return;
+        }
+        
+        target.Value = obj.Value;
+        await SetPreviewCoA();
+        StateHasChanged();
+    }
+
+    private void OnChangeIsInEditMode(bool obj)
+    {
+    
+        GridIsInEditMode = obj;
+       Console.WriteLine(obj);
+    }
+
+}

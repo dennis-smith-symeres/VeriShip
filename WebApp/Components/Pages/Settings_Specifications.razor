@@ -1,0 +1,46 @@
+﻿@using VeriShip.Domain.Entities.QCSpecifications
+@using VeriShip.WebApp.Components.Settings
+
+@using VeriShip.WebApp.Services
+@inherits LayoutComponentBase
+
+@layout Layout
+
+@page "/settings/qc-specifications"
+<PageTitle>Specifications</PageTitle>
+
+<TelerikToolBar>
+
+
+    <ToolBarTemplateItem>
+        <b>General QC specifications</b>
+    </ToolBarTemplateItem>
+    <ToolBarTemplateItem>
+
+    </ToolBarTemplateItem>
+    <ToolBarSpacer></ToolBarSpacer>
+
+</TelerikToolBar>
+<div class="content">
+    <TelerikTabStrip @bind-ActiveTabIndex="@ActiveTabIndex">
+        <TabStripTab Title="@Attributes.GetEnumDisplayName(Table.GeneralInformation)">
+            <EditGrid Table="@Table.GeneralInformation">
+            </EditGrid>
+        </TabStripTab>
+        <TabStripTab Title="@Attributes.GetEnumDisplayName(Table.Tests)">
+            <EditGrid Table="@Table.Tests">
+            </EditGrid>
+        </TabStripTab>
+        <TabStripTab Title="@Attributes.GetEnumDisplayName(Table.Metadata)">
+            <EditGrid Table="@Table.Metadata">
+            </EditGrid>
+        </TabStripTab>
+    </TelerikTabStrip>
+</div>
+
+@code {
+
+    private int ActiveTabIndex { get; set; }
+
+
+}

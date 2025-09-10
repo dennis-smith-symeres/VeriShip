@@ -13,7 +13,29 @@
 
     private List<Menu.MenuItem> MenuItems { get; set; } = [];
 
-
+    private readonly Menu.MenuItem _menuSettings = new ()
+    {
+        Text = "Application settings",
+        TelerikIcon = @FontIcon.Gear,
+        Items = [
+            new ()
+            {
+                Text = "QC specifications",
+                Url = "/settings/qc-specifications"
+            },
+            new ()
+            {
+                Text = "Addresses",
+                Url = "/settings/addresses"
+            },
+            new ()
+            {
+                Text = "Templates",
+                Url = "/settings/templates"
+            }
+        ]
+    };
+   
     protected override async void OnInitialized()
     {
         try
@@ -23,7 +45,7 @@
             MenuItems = [];
             if (authState.User.IsInRole(Roles.Officer))
             {
-                MenuItems.Add(new Menu.MenuItem("Settings", "/settings/specifications", ""));
+                MenuItems.Add(_menuSettings);
             }
         }
         catch (Exception e)

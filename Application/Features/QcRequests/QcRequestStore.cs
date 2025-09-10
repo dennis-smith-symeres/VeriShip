@@ -13,9 +13,9 @@ namespace VeriShip.Application.Features.QcRequests;
 
 public class QcRequestStore(IApplicationDbContextFactory dbContextFactory, IProjectStore projectStore, ILogger<QcRequestStore> logger) : IQcRequestStore
 {
-    public async Task<Result<IEnumerable<QcRequest>>> Query(GetRequests request)
+    public async Task<Result<IEnumerable<QcRequest>>> Query(GetRequests request, CancellationToken cancellationToken = default)
     {
-        var projectResult = await projectStore.Query(request, CancellationToken.None);
+        var projectResult = await projectStore.Query(request, cancellationToken);
         if (!projectResult.IsSuccess)
         {
             return projectResult.Map();
@@ -23,9 +23,9 @@ public class QcRequestStore(IApplicationDbContextFactory dbContextFactory, IProj
 
         try
         {
-            var db = await dbContextFactory.CreateAsync(CancellationToken.None);
+            var db = await dbContextFactory.CreateAsync(cancellationToken);
             var queryable = db.QcRequests.AsNoTracking().Where(x => x.ProjectId == projectResult.Value.Id);
-            var requests = await queryable.ToListAsync(CancellationToken.None);
+            var requests = await queryable.ToListAsync(cancellationToken);
             return Result<IEnumerable<QcRequest>>.Success(requests);
         }
         catch (Exception e)
@@ -35,4 +35,47 @@ public class QcRequestStore(IApplicationDbContextFactory dbContextFactory, IProj
         }
         
     }
+    
+    public async Task<Result<QcRequest>> Query(GetRequest request, CancellationToken cancellationToken = default)
+    {
+        var projectResult = await projectStore.Query(request,cancellationToken);
+        if (!projectResult.IsSuccess)
+        {
+            return projectResult.Map();
+        }
+
+        if (request.RequestId < 1)
+        {
+            var qcRequest = new QcRequest()
+            {
+                ProjectId = projectResult.Value.Id,
+                Id = -1,
+                Active = true,
+                Label = DateTime.Now.ToString("yyyyMMddHHmmss"),
+                AttachmentIds = [],
+                Items = []
+            };
+            return Result<QcRequest>.Success(qcRequest);
+        }
+        try
+        {
+            var db = await dbContextFactory.CreateAsync(cancellationToken);
+            var queryable = db.QcRequests.AsNoTracking().Where(x => x.ProjectId == projectResult.Value.Id
+            && x.Id == request.RequestId
+            );
+            var requests = await queryable.FirstOrDefaultAsync(cancellationToken);
+            if (requests is null)
+            {
+                return Result<QcRequest>.NotFound("Request not found");
+            }
+            return Result<QcRequest>.Success(requests);
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Error getting all request");
+            return Result.Error(e.Message);
+        }
+        
+    }
 }
+

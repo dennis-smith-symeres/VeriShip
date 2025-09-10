@@ -1,20 +1,28 @@
 ﻿@using VeriShip.Application.Common
 @inject IWebHostEnvironment Env
+@inject NavigationManager Navigation
+@inject ILogger<AppHeader> Logger
 
 <TelerikAppBar position="@AppBarPosition.Top" PositionMode="AppBarPositionMode.Sticky" Class="appHeader" ThemeColor="ThemeColor.Primary">
     <AppBarSection>
         <img src="/images/logo.png" alt="logo" width="24" height="24"/>
     
         <NavLink href="/" class="title">
-            <h2 >@Settings.ApplicationName @(Env.IsDevelopment() ? "TEST" : "")</h2>
+            <h2 >@AppSettings.ApplicationName @(Env.IsDevelopment() ? "TEST" : "")</h2>
         </NavLink>
     </AppBarSection>
 
-    <AppBarSpacer Size="12"></AppBarSpacer>
+    <AppBarSpacer Size="24"></AppBarSpacer>
+    <AppBarSection>
+        <NavLink href="@($"/{ProjectNumber}")">
+            <b>Project @ProjectNumber</b>
+            
+        </NavLink>
+    </AppBarSection>
+    <AppBarSpacer></AppBarSpacer>
     <AppBarSection>
         <TopMenu />
     </AppBarSection>
-    <AppBarSpacer></AppBarSpacer>
     <AppBarSection>
         
         <LoginDisplay></LoginDisplay>
@@ -23,7 +31,25 @@
 </TelerikAppBar>
 @code
 {
-    public string Title { get; set; } = "Shipment platform";
+    public string ProjectNumber { get; set; } = "";
 
+    protected override void OnInitialized()
+    {
+        var match = System.Text.RegularExpressions.Regex.Match(Navigation.Uri, @"\/(\d{5,8})(?:\/|$)");
+        ProjectNumber = match.Success ? match.Groups[1].Value : "";
+        Logger.LogInformation("Project number extracted from URL: {ProjectNumber}", ProjectNumber);
+        Navigation.LocationChanged += HandleLocationChanged;
+
+    }
+    
+    private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)  {
+        var match = System.Text.RegularExpressions.Regex.Match(e.Location, @"\/(\d{5,8})(?:\/|$)");
+        ProjectNumber = match.Success ? match.Groups[1].Value : "";
+        Logger.LogInformation("Project number extracted from URL: {ProjectNumber}", ProjectNumber);
+        StateHasChanged();
+    }
+        
+
+    public void Dispose() => Navigation.LocationChanged -= HandleLocationChanged;
   
 }

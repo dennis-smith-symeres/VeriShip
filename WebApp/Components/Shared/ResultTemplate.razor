@@ -1,0 +1,26 @@
+﻿@typeparam T
+@inherits ComponentBase
+
+@using Ardalis.Result
+@using Humanizer
+
+<div>
+    @if (Result.IsSuccess)
+    {
+        @ChildContent(Result.Value)
+    }
+    else if (Result.IsUnavailable())
+    {
+        <ResultLoader />
+    }
+    else
+    {
+        <h3>Error Handling</h3>
+        <p>@Result.Status.Humanize()</p>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public Result<T> Result { get; set; } = Result<T>.Unavailable();
+    [Parameter] public RenderFragment<T>? ChildContent { get; set; } // Render content based on success data
+}

@@ -44,7 +44,7 @@ builder.Services.AddScoped<INotifications, Notifications>();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddDataProtection()
-    .SetApplicationName(Settings.ApplicationName);
+    .SetApplicationName(AppSettings.ApplicationName);
 
 builder.Services.AddSingleton<IUsersStateContainer, UsersStateContainer>();
 builder.Services.AddScoped<CircuitHandler, TrackingCircuitHandler>();

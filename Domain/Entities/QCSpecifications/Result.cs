@@ -8,6 +8,6 @@ public class Result : Entity
     public string? Acceptance { get; set; }
     public bool IsDefault { get; set; }
         
-    public int CheckId { get; set; }
+    public int QcSpecificationId { get; set; }
     public virtual QcSpecification? QcSpecification { get; set; }
 }

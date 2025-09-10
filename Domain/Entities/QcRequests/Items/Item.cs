@@ -6,8 +6,6 @@ public class Item: Entity
 {
     public int RequestId { get; set; }
     public virtual QcRequest QcRequest { get; set; }
-    public virtual List<Stage> Stages { get; set; } = [];
-
 
     public Status Status { get; set; } = Status.Draft;
     public string Comment { get; set; }

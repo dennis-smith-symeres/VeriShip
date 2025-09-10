@@ -9,3 +9,8 @@ public class GetRequests(string projectNumber, ClaimsPrincipal authStateUser) : 
 {
     
 }
+
+public class GetRequest(string projectNumber, ClaimsPrincipal authStateUser, int requestId) : GetProject(projectNumber, authStateUser)
+{
+    public int RequestId { get; } = requestId;
+}

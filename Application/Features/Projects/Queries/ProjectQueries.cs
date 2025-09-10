@@ -14,4 +14,11 @@ public class GetProject : GetNotebook
         ProjectNumber = projectNumber;
         ClaimsPrincipal = claimsPrincipal;
     }
+    
+   
+}
+
+public class GetDefaultQcSpecifications(string projectNumber, ClaimsPrincipal claimsPrincipal) : GetProject(projectNumber, claimsPrincipal)
+{
+    
 }

@@ -1,4 +1,4 @@
-﻿@page "/{projectNumber}/certifications"
+﻿@page "/{projectNumber}"
 @using Ardalis.Result
 @using Humanizer
 @using Microsoft.AspNetCore.Components.Authorization
@@ -13,55 +13,61 @@
 @using VeriShip.Application.Features.Signals.Queries
 @using VeriShip.Domain.Entities.Projects
 @using VeriShip.Domain.Entities.QcRequests
-@using VeriShip.WebApp.Components.Pages.Projects.Certifications._
+@using VeriShip.WebApp.Components.Projects
+@using VeriShip.WebApp.Components.ProjectSettings
+
+
 @using VeriShip.WebApp.Constants
+@inject NavigationManager NavigationManager
 
-<PageTitle>@ProjectNumber Certifications</PageTitle>
+<PageTitle>@ProjectNumber</PageTitle>
+<TelerikToolBar>
 
-@if (QcRequestsResult.IsSuccess)
-{
+    <ToolBarTemplateItem>
+       
+    </ToolBarTemplateItem>
+    <ToolBarSpacer></ToolBarSpacer>
+    <ToolBarTemplateItem>
+      <MenuSettings ProjectNumber="@ProjectNumber"></MenuSettings>
+    </ToolBarTemplateItem>
+  
+</TelerikToolBar>
+<div class="content">
+    
+<ResultTemplate T="Domain.Entities.Projects.Project" Result="ProjectResult">
     <div>
-    <RequestsTable Requests="@QcRequestsResult.Value"></RequestsTable>
+        <h3>Certification requests</h3>
+      <RequestsTable ProjectNumber="@ProjectNumber"></RequestsTable>
     </div>
-    <div>
-        show shipments
-    </div>
-}
-@if (QcRequestsResult.IsUnavailable())
-{
-    <TelerikLoader></TelerikLoader>
-}
-@if (!QcRequestsResult.IsSuccess && !QcRequestsResult.IsUnavailable())
-{
-    <h2>
-        Journal @ProjectNumber
-    </h2>
-    <p>
-        @QcRequestsResult.Status.Humanize()
-    </p>
-}
+
+</ResultTemplate>
+
+</div>
+<h3>Shipments</h3>
 
 @code {
 
     [Parameter] public string ProjectNumber { get; set; } = string.Empty;
     [CascadingParameter] private Task<AuthenticationState>? AuthState { get; set; }
-    [Inject] public required IQcRequestStore QcRequestStore { get; set; }
+    
+    [Inject] public required IProjectStore ProjectStore { get; set; }
     [Inject] public required ProtectedLocalStorage LocalStorage { get; set; }
-
-    private Result<IEnumerable<QcRequest>> QcRequestsResult { get; set; } = Result.Unavailable();
-
+    
+    private Result<Domain.Entities.Projects.Project> ProjectResult { get; set; } = Result.Unavailable();
+   
     protected override async Task OnParametersSetAsync()
     {
         if (AuthState != null)
         {
             var authState = await AuthState;
-            QcRequestsResult = await QcRequestStore.Query(new GetRequests(ProjectNumber, authState.User));
+            ProjectResult = await ProjectStore.Query(new GetProject(ProjectNumber, authState.User));
+            
         }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (QcRequestsResult is { IsSuccess: true})
+        if (ProjectResult is { IsSuccess: true })
         {
             List<string> notebooks = [];
             try

@@ -1,0 +1,46 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using VeriShip.Application.Features.Projects
+@using VeriShip.Application.Features.Projects.Queries
+
+<Menu MenuItems="@MenuItems"></Menu>
+
+
+@code {
+    [Parameter] public string ProjectNumber { get; set; } = string.Empty;
+    [CascadingParameter] private Task<AuthenticationState>? AuthState { get; set; }
+    [Inject] public required IProjectStore ProjectStore { get; set; }
+
+    private List<Menu.MenuItem> MenuItems { get; set; } = [];
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (AuthState != null)
+        {
+            var authState = await AuthState;
+            var projectResult = await ProjectStore.Query(new GetProject(ProjectNumber, authState.User));
+            if (!projectResult.IsSuccess )
+            {
+                return;
+            }
+            MenuItems.Add(new Menu.MenuItem()
+            {
+                Text = "Settings",
+                TelerikIcon = @FontIcon.Gear,
+                Items =
+                [
+                    new()
+                    {
+                        Text = "Default QC specifications",
+                        Url = $"{ProjectNumber}/certifications/default-qc-specifications"
+                    },
+                    new()
+                    {
+                        Text = "Internal checkers",
+                        Url = $"{ProjectNumber}/certifications/internal-checkers"
+                    }
+                ]
+            });
+        }
+    }
+
+}

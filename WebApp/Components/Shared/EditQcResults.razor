@@ -1,0 +1,175 @@
+﻿@using VeriShip.Domain.Entities.QCSpecifications
+@using VeriShip.WebApp.Models
+
+<TelerikGrid
+    OnEdit="@EditHandler"
+    Data="@CheckResults"
+    EditMode="@GridEditMode.Incell"
+    OnRowRender="@OnGridRowRender"
+    OnCancel="@OnCancelHandle"
+    OnUpdate="@UpdateHandler"
+    
+    Class="batch-grid">
+    <GridToolBarTemplate>
+        @CoATable.ToString()
+    </GridToolBarTemplate>
+    <GridColumns>
+       
+        @ChildContent
+        <GridColumn Field="Value" Title="Value" width="200px"  OnCellRender="@OnGridValueCellRender">
+            <Template>
+            @{
+                var item = context as QcResultEditModel;
+                var specialField = item?.QcSpecification?.SpecialField;
+                if (specialField == SpecialField.None)
+                {
+                    var allowCustom = item?.QcSpecification.AllowCustomValue == true;
+                    var values = item?.QcSpecification?.Values ?? [];
+
+                    var placeholder = allowCustom ? "Custom values are allowed" : "Select result from list";
+                    <TelerikTextBox
+                       
+                        PlaceHolder="@placeholder"
+                        @bind-Value="@item!.Value"
+                    />
+                }
+              
+            }
+            </Template>
+            <EditorTemplate>
+                @{
+                    var item = context as QcResultEditModel;
+                    var allowCustom = item?.QcSpecification.AllowCustomValue == true;
+                    var values = item?.QcSpecification.Values ?? [];
+
+                    var placeholder = allowCustom ? "Custom values are allowed" : "Select result from list";
+                    <div style="margin: 5px 0">
+                        @if (allowCustom && values.Count == 0)
+                        {
+                            <TelerikTextBox
+                                ShowClearButton="true"
+                                PlaceHolder="Custom values are allowed"
+                                @bind-Value="@item!.Value"
+                            />
+                        }
+                        else
+                        {
+                            
+                    <TelerikComboBox
+                  
+                        PlaceHolder="@placeholder"
+                        Data="values"
+                        @ref="@ComboRef"
+                        @bind-Value="@item!.Value"
+                        AllowCustom="@allowCustom"></TelerikComboBox>
+                        }
+                    </div>
+                  
+                }
+            </EditorTemplate>
+        </GridColumn>
+    </GridColumns>
+</TelerikGrid>
+<style>
+   
+    .batch-grid td:first-child,
+    .batch-grid th:first-child {
+        text-align: center !important;
+    }
+    .batch-grid .k-new-row, .batch-grid .k-changed-cell {
+        background-color: rgb(94, 194, 50, 0.5) !important;
+    }
+
+    .batch-grid .k-new-row:hover {
+        background-color: rgb(94, 194, 50, 0.6) !important;
+    }
+
+    .batch-grid .k-deleted-row td:not(.k-command-cell) {
+        outline: none;
+        cursor: default;
+        opacity: 0.6;
+        filter: grayscale(0.1);
+        pointer-events: none;
+        box-shadow: none;
+        text-decoration: line-through;
+        
+        
+    }
+</style>
+@code {
+
+    [Parameter] public IEnumerable<QcResultEditModel>? CheckResults { get; set; }
+    [Parameter] public EventCallback<QcResultEditModel> OnChange { get; set; }
+ 
+    [Parameter] public Table CoATable { get; set; }
+    [Parameter] public RenderFragment ChildContent { get; set; }
+    [Parameter] public EventCallback<bool> OnChangeIsInEditMode { get; set; }
+
+    private TelerikComboBox<string, string> ComboRef { get; set; }
+    
+
+    async Task EditHandler(GridCommandEventArgs args)
+    {
+       
+        var item = (QcResultEditModel)args.Item;
+        if (args.Field != "Value" )
+        {
+            args.IsCancelled = true;
+        }
+        if (item.QcSpecification?.SpecialField != SpecialField.None)
+        {
+            args.IsCancelled = true;
+        }
+
+        if (!args.IsCancelled)
+        {
+            await OnChangeIsInEditMode.InvokeAsync( true );
+        }
+       
+     
+    }
+
+    async Task UpdateHandler(GridCommandEventArgs args)
+    {
+        var item = (QcResultEditModel)args.Item;
+        await OnChange.InvokeAsync(item);
+        await OnChangeIsInEditMode.InvokeAsync(false);
+    }
+
+    private void OnGridRowRender(GridRowRenderEventArgs args)
+    {
+        var item = args.Item as QcResultEditModel;
+       
+        if (item.IsNew)
+        {
+            args.Class = "k-new-row";
+        }
+
+        if (item.Active is false)
+        {
+            args.Class = "k-deleted-row";
+        }
+
+        if (item.IsEditable)
+        {
+          
+            args.Class += " editable";
+        }
+    }
+
+
+    private void OnGridValueCellRender(GridCellRenderEventArgs args)
+    {
+        var item = args.Item as QcResultEditModel;
+        args.Class = (item?.Value ?? "") != (item?.OldValue ??"") ? "k-changed-cell" : string.Empty;
+   
+        ComboRef?.Open();
+    }
+
+    private async Task OnCancelHandle(GridCommandEventArgs obj)
+    {
+     
+        await OnChangeIsInEditMode.InvokeAsync(false);
+    }
+
+}

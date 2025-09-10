@@ -4,10 +4,9 @@
 @layout MainLayout
 
 
-<div class="content">
-    <div style="background-color: var(--dark-blue-very-light); ">
-        <Menu MenuItems="@MenuItems" Orientation="MenuOrientation.Vertical"></Menu>
-    </div>
+
+
+    
 
         <AuthorizeView Roles="@Roles.Officer" >
             <Authorized >
@@ -20,18 +19,12 @@
             </NotAuthorized>
         </AuthorizeView>
 
-  
-</div>
+
 
 
 @code {
 
-    private List<Menu.MenuItem> MenuItems { get; set; } =
-    [
-        new ("Specifications", "/settings/specifications", ""),
-        new ("Addresses", "/settings/addresses"),
-        new ("Templates", "/settings/templates")
-    ];
+    
 
  
 }

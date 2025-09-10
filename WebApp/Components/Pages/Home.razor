@@ -10,7 +10,7 @@
 @using VeriShip.WebApp.Services
 
 <PageTitle>Home</PageTitle>
-<div class="content">
+<div class="content center">
     <TelerikLoaderContainer
         Visible="@IsLoading"
         Text="Checking project number"
@@ -34,7 +34,7 @@
         @foreach (var notebook in Notebooks)
         {
             <p>
-                <a href="/@notebook/certifications">@notebook</a>
+                <a href="/@notebook">@notebook</a>
             </p>
         }
     </div>
@@ -93,10 +93,10 @@
         IsLoading = true;
         StateHasChanged();
 
-        var notebook = await Store.Query(ProjectModel, CancellationToken.None);
+        var notebook = await Store.Query(ProjectModel);
         if (notebook.IsSuccess)
         {
-            NavigationManager.NavigateTo($"/{ProjectModel.ProjectNumber}/certifications");
+            NavigationManager.NavigateTo($"/{ProjectModel.ProjectNumber}");
         }
         else
         {

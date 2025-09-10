@@ -13,7 +13,7 @@ namespace VeriShip.Application.Features.QcSpecifications;
 
 public class QcSpecificationStore(IApplicationDbContextFactory dbContextFactory, ILogger<QcSpecificationStore> logger) : IQcSpecificationStore
 {
-    public async Task<Result<IEnumerable<QcSpecification>>> Query(GetAll request, CancellationToken cancellationToken)
+    public async Task<Result<IEnumerable<QcSpecification>>> Query(GetAll request, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -42,7 +42,7 @@ public class QcSpecificationStore(IApplicationDbContextFactory dbContextFactory,
         }
     }
 
-    public async Task<Result<int>> Handle(Upsert command, CancellationToken cancellationToken)
+    public async Task<Result<int>> Handle(Upsert command, CancellationToken cancellationToken = default)
     {
         var userResult = command.ClaimsPrincipal.ToUserResult();
         if (!userResult.IsSuccess )
@@ -97,7 +97,7 @@ public class QcSpecificationStore(IApplicationDbContextFactory dbContextFactory,
 
     }
 
-    public async Task<Result<int>> Handle(Sort command, CancellationToken cancellationToken)
+    public async Task<Result<int>> Handle(Sort command, CancellationToken cancellationToken = default)
     {
         var userResult = command.ClaimsPrincipal.ToUserResult();
         if (!userResult.IsSuccess)

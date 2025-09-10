@@ -66,10 +66,10 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             .HasIndex(x => x.ProjectNumber)
             .IsUnique();
         modelBuilder.Entity<ProjectResult>()
-            .HasIndex(x => new {x.ProjectId, x.CheckId})
+            .HasIndex(x => new {x.ProjectId, x.QcSpecificationId})
             .IsUnique();
         modelBuilder.Entity<ItemResult>()
-            .HasIndex(x => new {x.ItemId, x.CheckId})
+            .HasIndex(x => new {x.ItemId, x.QcSpecificationId})
             .IsUnique();
         
   

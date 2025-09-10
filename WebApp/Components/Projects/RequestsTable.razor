@@ -1,0 +1,49 @@
+﻿@using Ardalis.Result
+@using Microsoft.AspNetCore.Components.Authorization
+@using VeriShip.Application.Features.QcRequests
+@using VeriShip.Application.Features.QcRequests.Queries
+@using VeriShip.Domain.Entities.QcRequests
+
+
+<ResultTemplate T="IEnumerable<QcRequest>" Result="QcRequestsResult">
+    <div>
+      
+        <div style="display: flex; flex-direction: row; gap: 1rem; align-items: center;">
+            <TelerikButton
+                OnClick="@NavigateToNewRequest"
+                Icon="@FontIcon.Plus"
+                ThemeColor="@ThemeConstants.Button.ThemeColor.Primary"
+            >
+                new
+            </TelerikButton>
+            <TelerikGrid Data="@QcRequestsResult.Value">
+                <GridColumns>
+                    <GridColumn Field="@nameof(QcRequest.Id)" />
+       
+                </GridColumns>
+            </TelerikGrid>
+        </div>
+    </div>
+
+</ResultTemplate>
+
+
+
+@code {
+    [Parameter] public string ProjectNumber { get; set; }
+    [Inject] public required IQcRequestStore QcRequestStore { get; set; }
+    [Inject] public required NavigationManager NavigationManager { get; set; }
+    [CascadingParameter] private Task<AuthenticationState>? AuthState { get; set; }
+    
+    private void NavigateToNewRequest() => NavigationManager.NavigateTo($"/{ProjectNumber}/certifications/-1");
+    private Result<IEnumerable<QcRequest>> QcRequestsResult { get; set; } = Result.Unavailable();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (AuthState != null)
+        {
+            var authState = await AuthState;
+            QcRequestsResult = await QcRequestStore.Query(new GetRequests(ProjectNumber, authState.User));
+        }
+    }
+}

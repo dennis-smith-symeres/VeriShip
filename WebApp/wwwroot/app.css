@@ -36,7 +36,7 @@
     --kendo-progressbar-bg:var(--kendo-color-secondary);
     --kendo-upload-dropzone-padding-y: 0;
     --kendo-color-primary-on-surface: var(--kendo-color-primary);
-    /*--kendo-toolbar-bg:var(--kendo-color-primary);*/
+    --kendo-toolbar-bg:var(--dark-blue-very-light);
     /*--kendo-toolbar-text: white;*/
 
     /*--kendo-table-header-bg: var(--kendo-color-primary);*/
@@ -103,15 +103,23 @@ body {
 }
 
 .main-content{
-    padding: 24px 24px ;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-width: 50%;
+
 }
 
 .content {
-    display: flex; gap: 1rem;height: calc(100vh - 100px);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    height: calc(100vh - 100px);
+    padding: 24px 24px ;
+    align-items: flex-start;
+}
+.content.row {
+    flex-direction: row;
+}
+.content.center {
+    
+    align-items: center;
 }
 
 a[href].k-link.active {

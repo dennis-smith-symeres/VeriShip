@@ -1,0 +1,16 @@
+﻿@page "/{projectNumber}/certifications/{requestId:int}"
+@using VeriShip.Application.Features.Projects
+
+@ProjectNumber, @RequestId
+
+@code {
+    [Parameter] public string ProjectNumber { get; set; }
+    [Parameter] public int RequestId { get; set; }
+    [Inject] public IProjectStore ProjectStore { get; set; }
+
+    protected override Task OnParametersSetAsync()
+    {
+        return base.OnParametersSetAsync();
+    }
+
+}
