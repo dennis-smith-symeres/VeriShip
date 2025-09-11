@@ -40,10 +40,10 @@
     --kendo-menu-border:var(--dark-blue-light);
     --kendo-menu-border-width:1px;
     /*--kendo-toolbar-text: white;*/
-
-    /*--kendo-table-header-bg: var(--kendo-color-primary);*/
+   
+    --kendo-table-header-bg: var(--kendo-color-primary);
     /*--kendo-grid-header-bg: var(--kendo-color-primary);*/
-    /*--kendo-table-header-text: white;*/
+    --kendo-table-header-text: white;
     /*--kendo-card-header-padding-y:4px;*/
     --kendo-form-hint-text: var(--kendo-color-primary);
     /*--kendo-component-bg: var(--kendo-color-surface);*/
@@ -65,6 +65,15 @@
     margin: 60px 0;
         
         
+}
+
+h3 {
+    margin: 0;
+}
+.shrink-to-content {
+    display: inline-block;     /* shrink to content */
+    width: fit-content;        /* or max-content if you prefer no wrapping */
+    max-width: 100%;           /* prevent overflow on small screens */
 }
 
 /*.k-notification { */

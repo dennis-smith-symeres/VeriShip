@@ -1,6 +1,8 @@
-﻿@using VeriShip.Domain.Entities.QCSpecifications
+﻿@using Humanizer
+@using VeriShip.Domain.Entities.QCSpecifications
 @using VeriShip.WebApp.Models
 
+<h3>@CoATable.Humanize()</h3>
 <TelerikGrid
     OnEdit="@EditHandler"
     Data="@CheckResults"
@@ -9,21 +11,19 @@
     OnCancel="@OnCancelHandle"
     OnUpdate="@UpdateHandler"
     
-    Class="batch-grid">
-    <GridToolBarTemplate>
-        @CoATable.ToString()
-    </GridToolBarTemplate>
+   >
+
     <GridColumns>
        
         @ChildContent
-        <GridColumn Field="Value" Title="Value" width="200px"  OnCellRender="@OnGridValueCellRender">
+        <GridColumn Field="Value" Title="Value"  OnCellRender="@OnGridValueCellRender">
             <Template>
             @{
                 var item = context as QcResultEditModel;
                 var specialField = item?.QcSpecification?.SpecialField;
                 if (specialField == SpecialField.None)
                 {
-                    var allowCustom = item?.QcSpecification.AllowCustomValue == true;
+                    var allowCustom = item?.QcSpecification?.AllowCustomValue == true;
                     var values = item?.QcSpecification?.Values ?? [];
 
                     var placeholder = allowCustom ? "Custom values are allowed" : "Select result from list";
@@ -39,12 +39,12 @@
             <EditorTemplate>
                 @{
                     var item = context as QcResultEditModel;
-                    var allowCustom = item?.QcSpecification.AllowCustomValue == true;
-                    var values = item?.QcSpecification.Values ?? [];
+                    var allowCustom = item?.QcSpecification?.AllowCustomValue == true;
+                    var values = item?.QcSpecification?.Values ?? [];
 
                     var placeholder = allowCustom ? "Custom values are allowed" : "Select result from list";
-                    <div style="margin: 5px 0">
-                        @if (allowCustom && values.Count == 0)
+                    <div style="margin: 6px 0">
+                        @if (values.Count == 0)
                         {
                             <TelerikTextBox
                                 ShowClearButton="true"

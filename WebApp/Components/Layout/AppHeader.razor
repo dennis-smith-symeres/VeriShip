@@ -15,7 +15,7 @@
     <AppBarSpacer Size="24"></AppBarSpacer>
     <AppBarSection>
         <NavLink href="@($"/{ProjectNumber}")">
-            <b>Project @ProjectNumber</b>
+            <h3>Project @ProjectNumber</h3>
             
         </NavLink>
     </AppBarSection>
@@ -37,7 +37,6 @@
     {
         var match = System.Text.RegularExpressions.Regex.Match(Navigation.Uri, @"\/(\d{5,8})(?:\/|$)");
         ProjectNumber = match.Success ? match.Groups[1].Value : "";
-        Logger.LogInformation("Project number extracted from URL: {ProjectNumber}", ProjectNumber);
         Navigation.LocationChanged += HandleLocationChanged;
 
     }
@@ -45,7 +44,6 @@
     private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)  {
         var match = System.Text.RegularExpressions.Regex.Match(e.Location, @"\/(\d{5,8})(?:\/|$)");
         ProjectNumber = match.Success ? match.Groups[1].Value : "";
-        Logger.LogInformation("Project number extracted from URL: {ProjectNumber}", ProjectNumber);
         StateHasChanged();
     }
         

@@ -13,7 +13,7 @@ using VeriShip.Domain.Entities.QcRequests;
 using VeriShip.Domain.Entities.QcRequests.Items;
 using AuditField = VeriShip.Domain.Entities.Audits.Field;
 using VeriShip.Domain.Entities.QCSpecifications;
-using VeriShip.Domain.Entities.Settings;
+using VeriShip.Domain.Templates;
 using Stage = VeriShip.Domain.Entities.QcRequests.Stage;
 using BoxItem = VeriShip.Domain.Entities.Boxes.Items.Item;
 using BoxStage = VeriShip.Domain.Entities.Boxes.Stage;
@@ -49,7 +49,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<Box> Boxes { get; set; }
     public DbSet<BoxStage> BoxStages { get; set; }
     public DbSet<BoxType> BoxTypes { get; set; }
-    public DbSet<Setting> Settings { get; set; }
+    public DbSet<Template> Templates { get; set; }
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
         configurationBuilder.Properties<Enum>()

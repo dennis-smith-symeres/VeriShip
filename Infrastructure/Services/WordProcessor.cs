@@ -351,7 +351,7 @@ public class WordProcessor
     {
         var provider = new Telerik.Windows.Documents.Flow.FormatProviders.Pdf.PdfFormatProvider();
         using var outputStream = new MemoryStream();
-        provider.Export(_document, outputStream);
+        provider.Export(_document, outputStream, TimeSpan.FromSeconds(5));
         var bytes = outputStream.ToArray();
         return bytes;
     }

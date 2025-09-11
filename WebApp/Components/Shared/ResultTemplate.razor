@@ -4,23 +4,26 @@
 @using Ardalis.Result
 @using Humanizer
 
-<div>
-    @if (Result.IsSuccess)
+<div style="display: flex; align-items: center; justify-content: center;">
+    @switch (Result.Status)
     {
-        @ChildContent(Result.Value)
+        case ResultStatus.Ok:
+        case ResultStatus.Created:
+      
+            @ChildContent(Result.Value)
+            break;
+        case ResultStatus.Unavailable:
+            <ResultLoader/>
+            break;
+        default:
+            <p>@Result.Status.Humanize()</p>
+            break;
     }
-    else if (Result.IsUnavailable())
-    {
-        <ResultLoader />
-    }
-    else
-    {
-        <h3>Error</h3>
-        <p>@Result.Status.Humanize()</p>
-    }
+   
+
 </div>
 
 @code {
     [Parameter, EditorRequired] public Result<T> Result { get; set; } = Result<T>.Unavailable();
-    [Parameter] public RenderFragment<T>? ChildContent { get; set; } // Render content based on success data
+    [Parameter] public RenderFragment<T> ChildContent { get; set; } // Render content based on success data
 }

@@ -1,11 +1,114 @@
-﻿@using VeriShip.Domain.Entities.Attachments
+﻿@using Ardalis.Result
+@using Humanizer
+@using Microsoft.AspNetCore.Components.Authorization
+@using VeriShip.Application.Features.Attachments
+@using VeriShip.Application.Features.Attachments.Queries
+@using VeriShip.Application.Features.Templates
+@using VeriShip.Application.Features.Templates.Commands
+@using VeriShip.Application.Features.Templates.Queries
+@using VeriShip.Domain.Entities.Attachments
 
-<TelerikGrid Data="@Attachments" >
+@using VeriShip.Domain.Templates
+
+
+@inject ITemplateStore TemplateStore
+@inject IAttachmentStore AttachmentStore
+@inject NavigationManager NavigationManager
+
+
+    <ResultTemplate T="IEnumerable<Template>" Result="TemplatesResult">
+        <div style="display: flex; flex-direction: column;align-items: flex-start; gap: 1rem;">
+            
+            <TelerikGrid Data="@TemplatesResult.Value"   OnDelete="@DeleteHandler"  >
+                
+                <GridColumns>
+                    <GridColumn Field="@nameof(Template.Name)" Title="Name"></GridColumn>
+                    <GridColumn Field="@nameof(Template.CreatedBy)" Title="Created by"></GridColumn>
+                    <GridColumn Field="@nameof(Template.CreatedOn)" Title="Created on"></GridColumn>
+                    <GridColumn Field="@nameof(Template.Size)" Title="Size"></GridColumn>
+              
+                    <GridCommandColumn Width="260px" Context="commnadContext">
+                        
+                        <GridCommandButton Command="Delete" Icon="@FontIcon.Trash">Delete</GridCommandButton>
+                    </GridCommandColumn>
+                   
+                   
+                </GridColumns>
+            </TelerikGrid>
     
-</TelerikGrid>
+            <TelerikUpload
+                SaveUrl="@SaveUrl"
+                RemoveUrl="@RemoveUrl"
+                AllowedExtensions="@AllowedExtensions"
+                OnUpload="@OnUploadHandler"
+                OnSuccess="@OnSuccessHandler"
+                AutoUpload="false"
+                Accept=".docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                MaxFileSize="@MaxFileSize">
+                <SelectFilesButtonTemplate>
+                    <TelerikFontIcon Icon="@FontIcon.Upload" />
+                    Click to Select Files for Upload for @TemplateType.Humanize()
+                </SelectFilesButtonTemplate>
+            </TelerikUpload>
+    
+        </div>
+       
+    </ResultTemplate>
+    
+
+
 
 @code {
-    [Parameter] public IEnumerable<Attachment> Attachments { get; set; } = [];
     
-    
+    public int MaxFileSize { get; set; } = 4 * 1024 * 1024;
+    public List<string> AllowedExtensions { get; set; } = new List<string>() {".docx"};
+
+    [Parameter] public TemplateType? TemplateType { get; set; } 
+    [CascadingParameter] public required Task<AuthenticationState> AuthState { get; set; }
+    public Result<IEnumerable<Template>> TemplatesResult { get; set; } = Result.Unavailable();
+   
+  
+    public string SaveUrl => ToAbsoluteUrl("api/upload/save");
+    public string RemoveUrl => ToAbsoluteUrl("api/upload/remove");
+  
+    private async Task OnUploadHandler(UploadEventArgs args)
+    {
+      
+        // args.RequestHeaders.Add("headerKey", "headerValue"); // for example, token
+        args.RequestData.Add("templateType", TemplateType); // for example, new file name
+      
+    }
+    public string ToAbsoluteUrl(string url)
+    {
+        return $"{NavigationManager.BaseUri}{url}";
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadData();
+    }
+    public async Task DeleteHandler(GridCommandEventArgs args)
+    {
+        if (args.Item is Template template)
+        {
+          
+            var auth = await AuthState;
+            await TemplateStore.Handle(new Remove(template.Id, auth.User));
+            await LoadData();
+        }
+    }
+  
+    private async Task LoadData()
+    {
+        if (TemplateType.HasValue)
+        {
+            TemplatesResult = await TemplateStore.Query(new Get(TemplateType.Value));
+        }
+    }
+
+
+    private async Task OnSuccessHandler(UploadSuccessEventArgs obj)
+    {
+        await LoadData();
+    }
 }

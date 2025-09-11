@@ -1,5 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using VeriShip.Application.Common;
+using VeriShip.Application.Features.Templates;
+using VeriShip.Application.Features.Templates.Commands;
+using VeriShip.Domain.Templates;
+using VeriShip.WebApp.Models;
 
 namespace VeriShip.WebApp.Endpoints;
 
@@ -7,7 +11,7 @@ public static class UploadApi
 {
     public class UploadRequest
     {
-        public string dataKey { get; set; }
+        public TemplateType TemplateType { get; set; }
         public IFormFile files { get; set; }
     }
 
@@ -16,28 +20,27 @@ public static class UploadApi
         var mapGroup = routes.MapGroup("/upload").RequireAuthorization(Roles.Access);
 
         mapGroup.MapPost("save",
-            async Task<IResult> (HttpContext http, IConfiguration configuration, [FromForm] UploadRequest request) =>
+            async Task<IResult> (HttpContext http, IConfiguration configuration, ITemplateStore templateStore, [FromForm] UploadRequest request) =>
             {
+                var file = request.files;
+                if (file is not { ContentType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" } || file.Length == 0)
+                {
+                    return TypedResults.BadRequest("Invalid file");
+                }
+
+                using var memoryStream = new MemoryStream();
+                await file.CopyToAsync(memoryStream, CancellationToken.None);
+                var fileBytes = memoryStream.ToArray();
+                var upsert = new Upsert
+                {
+                    Bytes = fileBytes,
+                    TemplateType = request.TemplateType,
+                    User = http.User,
+                    FileName = file.FileName
+                };
+                var result = await templateStore.Handle(upsert, CancellationToken.None); 
+                return  TypedResults.Ok(result);
                 
-
-                var baseFolder = configuration["UploadFolder"];
-              
-
-
-             
-             
-                //
-                //
-                // var saveLocation = Path.Combine(uploadFolder, "1.jpg");
-                //
-                // // Ensure proper disposal of file stream
-                // await using (var fileStream =
-                //              new FileStream(saveLocation, FileMode.Create, FileAccess.Write, FileShare.None))
-                // {
-                //     await file.CopyToAsync(fileStream);
-                // }
-
-                return TypedResults.NoContent();
             }).DisableAntiforgery();
 
         mapGroup.MapPost("remove", async (HttpContext http, IWebHostEnvironment env, IConfiguration configuration) =>

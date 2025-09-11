@@ -4,5 +4,5 @@ namespace VeriShip.Application.Features.QcSpecifications.Queries;
 
 public record GetAll()
 {
-    public Table Table { get; set; } 
+    public Table? Table { get; set; } 
 }

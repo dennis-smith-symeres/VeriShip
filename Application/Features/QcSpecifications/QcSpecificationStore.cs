@@ -11,9 +11,11 @@ using Sort = VeriShip.Application.Features.QcSpecifications.Commands.Sort;
 
 namespace VeriShip.Application.Features.QcSpecifications;
 
-public class QcSpecificationStore(IApplicationDbContextFactory dbContextFactory, ILogger<QcSpecificationStore> logger) : IQcSpecificationStore
+public class QcSpecificationStore(IApplicationDbContextFactory dbContextFactory, ILogger<QcSpecificationStore> logger)
+    : IQcSpecificationStore
 {
-    public async Task<Result<IEnumerable<QcSpecification>>> Query(GetAll request, CancellationToken cancellationToken = default)
+    public async Task<Result<IEnumerable<QcSpecification>>> Query(GetAll request,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -21,12 +23,17 @@ public class QcSpecificationStore(IApplicationDbContextFactory dbContextFactory,
             var querySort = await db.QcSpecificationsSort.AsNoTracking()
                 .ToListAsync(cancellationToken: cancellationToken);
             var order = querySort.SelectMany(x => x.Order).ToArray();
-            var query = await db
+            var query = db
                 .QcSpecifications
                 .AsNoTracking()
-                .Where(x => x.Table == request.Table)
-                .ToListAsync(cancellationToken: cancellationToken);
-            var specifications = query
+                .Where(x => x.Active);
+            if (request.Table != null)
+            {
+                query = query.Where(x => x.Table == request.Table);
+            }
+
+            var specsList = await query.ToListAsync(cancellationToken: cancellationToken);
+            var specifications = specsList
                 .OrderBy(item =>
                     {
                         var index = Array.IndexOf(order, item.Id);
@@ -38,18 +45,18 @@ public class QcSpecificationStore(IApplicationDbContextFactory dbContextFactory,
         catch (Exception e)
         {
             logger.LogError(e, "Error getting all specifications");
-           return Result<IEnumerable<QcSpecification>>.Error(e.Message);
+            return Result<IEnumerable<QcSpecification>>.Error(e.Message);
         }
     }
 
     public async Task<Result<int>> Handle(Upsert command, CancellationToken cancellationToken = default)
     {
         var userResult = command.ClaimsPrincipal.ToUserResult();
-        if (!userResult.IsSuccess )
+        if (!userResult.IsSuccess)
         {
             return userResult.Map();
         }
-        
+
         var db = await dbContextFactory.CreateAsync(cancellationToken);
 
         var specification = command.Specification.Id == 0
@@ -64,7 +71,6 @@ public class QcSpecificationStore(IApplicationDbContextFactory dbContextFactory,
         if (specification == null)
         {
             return Result<int>.NotFound("Specification not found");
-
         }
 
         specification.Table = command.Specification.Table;
@@ -94,7 +100,6 @@ public class QcSpecificationStore(IApplicationDbContextFactory dbContextFactory,
         }
 
         return new(specification.Id);
-
     }
 
     public async Task<Result<int>> Handle(Sort command, CancellationToken cancellationToken = default)
@@ -104,6 +109,7 @@ public class QcSpecificationStore(IApplicationDbContextFactory dbContextFactory,
         {
             return userResult.Map();
         }
+
         var db = await dbContextFactory.CreateAsync(cancellationToken);
         var sort = await db.QcSpecificationsSort.FirstOrDefaultAsync(x => x.Table == command.Table,
             cancellationToken: cancellationToken);
@@ -130,6 +136,6 @@ public class QcSpecificationStore(IApplicationDbContextFactory dbContextFactory,
             return Result<int>.Error($"Error saving order: {e.Message}");
         }
 
-        return new( sort.Id);
+        return new(sort.Id);
     }
 }
