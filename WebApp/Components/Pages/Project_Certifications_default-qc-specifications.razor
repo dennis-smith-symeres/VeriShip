@@ -25,6 +25,7 @@
 
 <PageTitle>@ProjectNumber</PageTitle>
 
+
 <TelerikToolBar>
 
     <ToolBarTemplateItem>
@@ -39,6 +40,13 @@
 
 </TelerikToolBar>
 
+<QcSpecificationSelector
+    Checks="@QcSpecitications"
+    CoATable="@Table.GeneralInformation"
+    @bind-Visible="@DialogGeneralIngormationsIsVisible"
+    OnSelectedChanged="@QcSpecificationSelectionChanged"
+    SelectedIds="@GridData.Where(x=>x.Active).Select(x => x.QcSpecificationId)">
+</QcSpecificationSelector>
 
     <TelerikSplitter
 
@@ -57,7 +65,11 @@
                         <GridColumn Field="QcSpecification.Category" Title="Category" Width="100px"></GridColumn>
                         <GridColumn Field="QcSpecification.Acceptance" Title="Label" Width="100px"></GridColumn>
                     </EditQcResults>
-
+                    <TelerikButton
+                        FillMode="@ThemeConstants.Button.FillMode.Outline"
+                        OnClick="@(() => DialogGeneralIngormationsIsVisible = true)">
+                        Add / Remove General information
+                    </TelerikButton>
                     <EditQcResults
                         OnChange="@UpdateResult"
                         OnChangeIsInEditMode="@OnChangeIsInEditMode"
@@ -98,16 +110,18 @@
 
     [Parameter] public string ProjectNumber { get; set; } = string.Empty;
     [CascadingParameter] public required Task<AuthenticationState> AuthState { get; set; }
+    
     [Inject] public required IProjectStore ProjectStore { get; set; }
     [Inject] public required IQcSpecificationStore QcSpecificationStore { get; set; }
+    [Inject] public required ProtectedLocalStorage LocalStorage { get; set; }
 
+    public bool DialogGeneralIngormationsIsVisible { get; set; }
     public Ardalis.Result.Result<IOrderedEnumerable<Result>> QCSpecificationResult { get; set; } = Ardalis.Result.Result<IOrderedEnumerable<Result>>.Unavailable();
     public List<QcSpecification> QcSpecitications { get; set; } = [];
     public List<Result> Results { get; set; } = [];
     private bool GridIsInEditMode { get; set; }
     private ObservableCollection<QcResultEditModel> GridData { get; set; } = new();
     public byte[] FileData { get; set; }
-    [Inject] public required ProtectedLocalStorage LocalStorage { get; set; }
     
     private decimal PdfZoom { get; set; } = 1.00m;
 
@@ -146,6 +160,59 @@
         PdfZoom = newZoom;
         await LocalStorage.SetAsync(LocalStorageKeys.VerishipPdfZoom, newZoom);
        
+    }
+    private async Task QcSpecificationSelectionChanged(IEnumerable<int> ids)
+    {
+ 
+      
+        foreach (var id in ids)
+        {
+            var isShown = GridData
+                .FirstOrDefault(x => x.QcSpecificationId == id);
+            var result = Results.FirstOrDefault(x => x.QcSpecificationId == id); 
+            //TODO: check logic
+            if (isShown is null)
+            {
+                GridData.Add(new QcResultEditModel()
+                {
+                    Id = result?.Id ?? -1,
+                    QcSpecificationId = id,
+                    Value = result?.Value,
+                    Active = true,
+                    IsNew = result == null,
+                    QcSpecification = QcSpecitications.FirstOrDefault(x=>x.Id == id),
+                });
+            }
+        }
+
+        var idsToRemove = new List<QcResultEditModel>();
+        foreach (var model in GridData)
+        {
+            var hasId = ids.Contains(model.QcSpecificationId);
+            model.Active = hasId;
+            model.IsDeleted = false;
+            if (hasId) continue;
+            
+            var result = Results.FirstOrDefault(r => r.QcSpecificationId == model.QcSpecificationId);
+            if (result != null  )
+            {
+                if (result.Active)
+                {
+                    model.IsDeleted = true;
+                }
+            }
+            else
+            {
+                idsToRemove.Add(model);
+            }
+        }
+
+        foreach (var b in idsToRemove)
+        {
+            GridData.Remove(b);
+        }
+        
+        await SetPreviewCoA();
     }
     
     async Task LoadData()
@@ -211,5 +278,7 @@
     {
         GridIsInEditMode = obj;
     }
+
+  
 
 }

@@ -1,0 +1,122 @@
+﻿@using Telerik.Blazor.Components.Common.Trees.Models
+@using VeriShip.Domain.Entities.QCSpecifications
+
+    
+<TelerikDialog Title="@Title" 
+               Visible="@Visible" VisibleChanged="@VisibleChanged" Width="1024px"  Height="800px"
+               Class="fixed-dialog"
+               >
+    <DialogContent >
+        <div class="dialog-scroll">
+
+            
+        <TelerikTreeView Data="@HData" Size="Size.Small" >
+            <TreeViewBindings>
+                <TreeViewBinding ParentIdField="Parent"></TreeViewBinding>
+            </TreeViewBindings>
+        </TelerikTreeView>
+
+        </div>
+    </DialogContent>
+</TelerikDialog>
+
+
+@code {
+
+    [Parameter] public bool Visible { get; set; }
+    [Parameter] public EventCallback<bool> VisibleChanged { get; set; }
+    [Parameter] public Table CoATable { get; set; }
+    [Parameter] public IEnumerable<int> SelectedIds { get; set; } = [];
+
+    [Parameter] public IEnumerable<QcSpecification> Checks { get; set; } = [];
+    [Parameter] public IEnumerable<QcSpecification> ShownChecks { get; set; } = [];
+
+    public string Title { get; set; } = "";
+    public IEnumerable<QcSpecification> Selected { get; set; } = [];
+    public IEnumerable<TreeItem> HData { get; set; } = [];
+    [Parameter] public EventCallback<IEnumerable<int>> OnSelectedChanged { get; set; }
+
+    protected override void OnParametersSet()
+    {
+     
+        Title = CoATable == Table.GeneralInformation
+            ? $"Add / remove General information"
+            : "Add / remove Test and results";
+        
+        ShownChecks = Checks.Where(i => i.Table == CoATable);
+
+        HData = ToTests( ShownChecks, CoATable);
+            
+
+        // Selected = Checks.Where(i => SelectedIds.Contains(i.Id));
+
+    }
+
+    private IEnumerable<TreeItem> ToTests(IEnumerable<QcSpecification> specifications, Table table)
+    {
+        var cats = specifications.GroupBy(x => x.Category);
+        var i = 1000;
+        var data = new List<TreeItem>();
+        foreach (var cat in cats)
+        {
+            i++;
+            var catItem = new TreeItem(i, null, cat.Key, true);
+            data.Add(catItem);
+            
+            if (table == Table.GeneralInformation)
+            {
+                foreach (var acc in cat.Select(t => t))
+                {
+                 
+                    var accItem = new TreeItem(acc.Id, catItem.Id, acc.Acceptance, false);
+                    data.Add(accItem);
+                }   
+            }
+            
+            if (table == Table.Tests)
+            {
+                foreach (var tec in cat.GroupBy(c => c.Technique))
+                {
+                    if (string.IsNullOrEmpty(tec?.Key))
+                    {
+                        continue;
+                    }
+                    i++;
+                    var tecItem = new TreeItem(i, catItem.Id, tec.Key, true);
+                    data.Add(tecItem);
+                    foreach (var acc in tec.Select(t => t))
+                    {
+                 
+                        var accItem = new TreeItem(acc.Id, tecItem.Id, acc.Acceptance, false);
+                        data.Add(accItem);
+                    }   
+                }
+            }
+
+           
+           
+        }
+
+        return data;
+    }
+    
+
+
+    public class TreeItem
+    {
+        public int Id { get; set; }
+        public int? Parent { get; set; }
+        public string Text { get; set; }
+      
+        public bool HasChildren { get; set; }
+
+        public TreeItem(int id, int? parent, string text,  bool hasChildren)
+        {
+            Id = id;
+            Parent = parent;
+            Text = text;
+        
+            HasChildren = hasChildren;
+        }
+    }
+}
