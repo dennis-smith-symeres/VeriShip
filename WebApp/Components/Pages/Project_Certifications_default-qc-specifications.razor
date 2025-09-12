@@ -41,7 +41,7 @@
 </TelerikToolBar>
 
 <QcSpecificationSelector
-    Checks="@QcSpecitications"
+    AllQcSpecifications="@QcSpecitications"
     CoATable="@Table.GeneralInformation"
     @bind-Visible="@DialogGeneralIngormationsIsVisible"
     OnSelectedChanged="@QcSpecificationSelectionChanged"
@@ -122,6 +122,7 @@
     private bool GridIsInEditMode { get; set; }
     private ObservableCollection<QcResultEditModel> GridData { get; set; } = new();
     public byte[] FileData { get; set; }
+
     
     private decimal PdfZoom { get; set; } = 1.00m;
 
@@ -164,7 +165,7 @@
     private async Task QcSpecificationSelectionChanged(IEnumerable<int> ids)
     {
  
-      
+ 
         foreach (var id in ids)
         {
             var isShown = GridData
