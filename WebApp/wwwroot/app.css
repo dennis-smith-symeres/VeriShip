@@ -54,13 +54,13 @@
     -moz-osx-font-smoothing: grayscale;
 }
 
-.fixed-dialog .k-dialog-content {
+.dialog-content {
     display: flex;          /* enable flex layout in the content area */
     flex-direction: column;
     height: 100%;           /* ensure 100% height relative to the dialog */
 }
 
-.fixed-dialog .dialog-scroll {
+.dialog-scroll {
     flex: 1 1 auto;         /* take remaining space in content area */
     min-height: 0;          /* critical for flex overflow to work */
     overflow: auto;         /* scroll only this region */

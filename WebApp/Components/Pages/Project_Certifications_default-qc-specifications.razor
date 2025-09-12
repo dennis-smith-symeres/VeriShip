@@ -39,14 +39,19 @@
     </ToolBarTemplateItem>
 
 </TelerikToolBar>
-
-<QcSpecificationSelector
-    AllQcSpecifications="@QcSpecitications"
-    CoATable="@Table.GeneralInformation"
-    @bind-Visible="@DialogGeneralIngormationsIsVisible"
-    OnSelectedChanged="@QcSpecificationSelectionChanged"
-    SelectedIds="@GridData.Where(x=>x.Active).Select(x => x.QcSpecificationId)">
-</QcSpecificationSelector>
+@if (DialogGeneralIngormationsIsVisible)
+{
+    <QcSpecificationSelector
+        AllQcSpecifications="@QcSpecitications"
+        CoATable="@Table.GeneralInformation"
+        @bind-Visible="@DialogGeneralIngormationsIsVisible"
+        OnSelectedChanged="@QcSpecificationSelectionChanged"
+        SelectedIds="@GridData.Where(x=>x.Active).Select(x => x.QcSpecificationId)">
+    </QcSpecificationSelector>
+}
+@if (DialogTestsIsVisible)
+{
+    
 <QcSpecificationSelector
     AllQcSpecifications="@QcSpecitications"
     CoATable="@Table.Tests"
@@ -54,6 +59,7 @@
     OnSelectedChanged="@QcSpecificationSelectionChanged"
     SelectedIds="@GridData.Where(x=>x.Active).Select(x => x.QcSpecificationId)">
 </QcSpecificationSelector>
+}
     <TelerikSplitter
 
         Orientation="@SplitterOrientation.Horizontal">
