@@ -12,14 +12,17 @@
 
 >
     <DialogContent>
-        <div style="display: flex; flex-direction: column;">
+        <div class="dialog-content" >
+        <div style="position: sticky; top: 0; z-index: 1; background: #fff;">
 
             <TelerikTextBox Value="@FilteredValue"
 
                             DebounceDelay="200"
                             ValueChanged="@((string input) => OnFilterChanged(input))"
                             Id="filter-value"/>
-            <div class="dialog-scroll">
+        </div>
+
+         
                 <TelerikTreeView Data="@FilteredNodes"
                                     CheckParents="true"
                                  Size="@ThemeConstants.TreeView.Size.Small"
@@ -33,7 +36,7 @@
                         <TreeViewBinding ParentIdField="Parent"></TreeViewBinding>
                     </TreeViewBindings>
                 </TelerikTreeView>
-            </div>
+         
 
 
         </div>
