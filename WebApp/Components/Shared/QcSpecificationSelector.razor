@@ -3,106 +3,69 @@
 
 <TelerikDialog Title="@Title"
                @ref="DialogRef"
-               Visible="@Visible" VisibleChanged="@VisibleChanged" Width="600px"  Height="600px"
+               Visible="@Visible"
+               VisibleChanged="@VisibleChanged"
+               Width="600px"
+               Height="600px"
                Class="fixed-dialog"
 >
-    <DialogContent >
-        <div class="dialog-scroll">
-       
+    <DialogContent>
+        <div style="display: flex; flex-direction: column;">
+
             <TelerikTextBox Value="@FilteredValue"
+
                             DebounceDelay="200"
-                            ValueChanged="@((string input) => OnFilterChanged(input))" Id="filter-value"/>
+                            ValueChanged="@((string input) => OnFilterChanged(input))"
+                            Id="filter-value"/>
+            <div class="dialog-scroll">
+                <TelerikTreeView Data="@FilteredNodes"
+                                    CheckParents="true"
+                                 Size="@ThemeConstants.TreeView.Size.Small"
+                                 CheckBoxMode="TreeViewCheckBoxMode.Multiple"
+                                 CheckedItems="@SelectedTreeItems"
+                                 ExpandedItems="@ExpandedItems"
+                                 
+                                 CheckedItemsChanged="@OnCheckedItemsChanged"
+                                 CheckOnClick="true">
+                    <TreeViewBindings>
+                        <TreeViewBinding ParentIdField="Parent"></TreeViewBinding>
+                    </TreeViewBindings>
+                </TelerikTreeView>
+            </div>
 
-            <TelerikTreeView Data="@FilteredNodes"
-
-                             Size="@ThemeConstants.TreeView.Size.Small"
-                             CheckBoxMode="TreeViewCheckBoxMode.Multiple"
-                             @bind-CheckedItems="VisibleCheckedItems"
-
-                             ExpandedItems="@ExpandedItems"
-                             CheckParents="true"
-                             CheckOnClick="true">
-                <TreeViewBindings>
-                    <TreeViewBinding ParentIdField="Parent"></TreeViewBinding>
-                </TreeViewBindings>
-            </TelerikTreeView>
 
         </div>
     </DialogContent>
     <DialogButtons>
-        <TelerikButton OnClick="@(() => { Visible = false; })">Cancel</TelerikButton>
-        <TelerikButton ThemeColor="@(ThemeConstants.Button.ThemeColor.Primary)" OnClick="@OnConfirm">Confirm</TelerikButton>
+        <TelerikButton OnClick="@(async () => { await VisibleChanged.InvokeAsync(); })">Cancel</TelerikButton>
+        <TelerikButton ThemeColor="@(ThemeConstants.Button.ThemeColor.Primary)" OnClick="@OnConfirm">Confirm
+        </TelerikButton>
     </DialogButtons>
 </TelerikDialog>
 
 
 @code {
 
+    [Parameter] public IEnumerable<QcSpecification> AllQcSpecifications { get; set; } = [];
     [Parameter] public bool Visible { get; set; }
     [Parameter] public EventCallback<bool> VisibleChanged { get; set; }
     [Parameter] public Table CoATable { get; set; }
     [Parameter] public IEnumerable<int> SelectedIds { get; set; } = [];
-
-    [Parameter] public IEnumerable<QcSpecification> AllQcSpecifications { get; set; } = [];
-    [Parameter] public IEnumerable<QcSpecification> ShownQcSpecifications { get; set; } = [];
     [Parameter] public EventCallback<IEnumerable<int>> OnSelectedChanged { get; set; }
 
     public string Title { get; set; } = "";
-    // Master selection store (persists across filters)
-    private HashSet<int> MasterSelectedIds { get; set; } = new();
-    // Backing field for visible checked items binding
-    private IEnumerable<object> _visibleCheckedItems = Array.Empty<object>();
-    public IEnumerable<object> VisibleCheckedItems
-    {
-        get
-        {
-            // reflect master selection into currently visible nodes
-            _visibleCheckedItems = FilteredNodes
-                .Where(n => MasterSelectedIds.Contains(n.Id))
-                .Cast<object>()
-                .ToList();
-            return _visibleCheckedItems;
-        }
-        set
-        {
-            var oldVisible = _visibleCheckedItems.Cast<TreeItem>().Select(n => n.Id).ToHashSet();
-            var newVisible = (value ?? Array.Empty<object>()).Cast<TreeItem>().Select(n => n.Id).ToHashSet();
 
-            var added = newVisible.Except(oldVisible).ToList();
-            var removed = oldVisible.Except(newVisible).ToList();
+    private HashSet<int> MasterSelectedIds { get; set; } = [];
 
-            // Update master selection including descendants (even if currently filtered out)
-            foreach (var d in added)
-            {
-                // foreach (var d in EnumerateWithDescendants(id))
-                // {
-                    if (d < 1000)
-                    {
-                    MasterSelectedIds.Add(d);
-                        
-                    }
-                    
-                // }
-            }
-            foreach (var id in removed)
-            {
-                foreach (var d in EnumerateWithDescendants(id))
-                {
-                    MasterSelectedIds.Remove(d);
-                    
-                }
-            }
-
-            _visibleCheckedItems = value ?? Array.Empty<object>();
-            StateHasChanged();
-
-        }
-    }
     public IEnumerable<TreeItem> FilteredNodes { get; set; } = [];
+
+    public IEnumerable<TreeItem> SelectedTreeItems { get; set; }
+
     public IEnumerable<object> ExpandedItems { get; set; } = [];
-    private List<TreeItem> AllNodes { get; set; } = new();
-    private int treeVersion;
+
     public string FilteredValue { get; set; } = string.Empty;
+
+
     TelerikDialog DialogRef;
 
     protected override void OnParametersSet()
@@ -111,14 +74,12 @@
             ? $"Add / remove General information"
             : "Add / remove Test and results";
 
-        ShownQcSpecifications = AllQcSpecifications.Where(i => i.Table == CoATable).ToList();
 
-        // Build full (unfiltered) tree once and seed master selections
-        AllNodes = ToTests(ShownQcSpecifications, CoATable);
         MasterSelectedIds = SelectedIds?.ToHashSet() ?? [];
 
         ApplyFilter(FilteredValue);
     }
+
     private void OnFilterChanged(string input)
     {
         FilteredValue = input;
@@ -128,30 +89,81 @@
 
     private void ApplyFilter(string input)
     {
-        var filtered = string.IsNullOrWhiteSpace(input)
-            ? ShownQcSpecifications
-            : ShownQcSpecifications.Where(x =>
-                x.Category.Contains(input, StringComparison.OrdinalIgnoreCase)
-                || x.Acceptance.Contains(input, StringComparison.OrdinalIgnoreCase)
-                || (!string.IsNullOrEmpty(x.Technique) && x.Technique.Contains(input, StringComparison.OrdinalIgnoreCase)));
+        var filteredQcSpecifications = string.IsNullOrWhiteSpace(input)
+            ? AllQcSpecifications.Where(x => x.Table == CoATable)
+            : AllQcSpecifications.Where(x => x.Table == CoATable)
+                .Where(x =>
+                    x.Category.Contains(input, StringComparison.OrdinalIgnoreCase)
+                    || x.Acceptance.Contains(input, StringComparison.OrdinalIgnoreCase)
+                    || (!string.IsNullOrEmpty(x.Technique) && x.Technique.Contains(input, StringComparison.OrdinalIgnoreCase)));
 
-        FilteredNodes = ToTests(filtered, CoATable);
+        FilteredNodes = ToTests(filteredQcSpecifications, CoATable);
 
-        // Expand groups when filtering so matches are visible
+        SelectedTreeItems = IterateParents(FilteredNodes.Where(x => MasterSelectedIds.Contains(x.Id)));
+
         ExpandedItems = string.IsNullOrEmpty(input)
             ? new List<TreeItem>()
             : FilteredNodes.Where(n => n.HasChildren).Cast<object>().ToList();
 
-        // Refresh visible checked items from master selection
-        _visibleCheckedItems = FilteredNodes
-            .Where(n => MasterSelectedIds.Contains(n.Id))
-            .Cast<object>()
-            .ToList();
-
+        StateHasChanged();
         DialogRef?.Refresh();
-        treeVersion++;
     }
 
+    private List<TreeItem> IterateParents(IEnumerable<TreeItem> treeItems)
+    {
+        var result = new List<TreeItem>(treeItems);
+        var parents = new HashSet<int>();
+
+        foreach (var item in treeItems.Where(x => x.Parent.HasValue))
+        {
+            AddParentsRecursively(item.Parent.Value, parents);
+        }
+
+        result.AddRange(FilteredNodes.Where(x => parents.Contains(x.Id)));
+        return result;
+    }
+
+    private void AddParentsRecursively(int itemId, HashSet<int> parents)
+    {
+        if (parents.Contains(itemId))
+            return;
+
+        parents.Add(itemId);
+        var parentItem = FilteredNodes.FirstOrDefault(x => x.Id == itemId);
+        if (parentItem?.Parent.HasValue == true)
+        {
+            AddParentsRecursively(parentItem.Parent.Value, parents);
+        }
+    }
+
+    private void OnCheckedItemsChanged(IEnumerable<object> obj)
+    {
+        var newIds = obj.Cast<TreeItem>().Select(n => n.Id).ToHashSet();
+        var oldIds = SelectedTreeItems.Select(n => n.Id).ToHashSet();
+
+        var added = newIds.Except(oldIds).ToList();
+        var removed = oldIds.Except(newIds).ToList();
+        foreach (var id in added)
+        {
+            var node = FindNode(id);
+            if (node?.HasChildren != true)
+            {
+                MasterSelectedIds.Add(id);
+            }
+        }
+
+        foreach (var id in removed)
+        {
+            var node = FindNode(id);
+            if (node?.HasChildren != true)
+            {
+                MasterSelectedIds.Remove(id);
+            }
+        }
+            
+    }
+
+    private TreeItem? FindNode(int id) => FilteredNodes.FirstOrDefault(n => n.Id == id);
 
     private List<TreeItem> ToTests(IEnumerable<QcSpecification> specifications, Table table)
     {
@@ -179,46 +191,33 @@
                 {
                     catItem.HasChildren = false;
                 }
-
             }
 
             if (table == Table.Tests)
             {
                 foreach (var tec in cat.GroupBy(c => c.Technique))
                 {
-                    if (string.IsNullOrEmpty(tec?.Key))
+                    if (string.IsNullOrEmpty(tec.Key))
                     {
                         continue;
                     }
+
                     i++;
                     var tecItem = new TreeItem(i, catItem.Id, tec.Key, true);
                     data.Add(tecItem);
                     foreach (var acc in tec.Select(t => t))
                     {
-
                         var accItem = new TreeItem(acc.Id, tecItem.Id, acc.Acceptance, false);
                         data.Add(accItem);
                     }
                 }
             }
-
-
-
         }
 
         return data.ToList();
     }
 
     // Enumerate a node and all descendants from the full, unfiltered tree
-    private IEnumerable<int> EnumerateWithDescendants(int id)
-    {
-        yield return id;
-        foreach (var child in AllNodes.Where(n => n.Parent == id))
-        {
-            foreach (var d in EnumerateWithDescendants(child.Id))
-                yield return d;
-        }
-    }
 
 
     public class TreeItem
@@ -229,7 +228,7 @@
 
         public bool HasChildren { get; set; }
 
-        public TreeItem(int id, int? parent, string text,  bool hasChildren)
+        public TreeItem(int id, int? parent, string text, bool hasChildren)
         {
             Id = id;
             Parent = parent;
@@ -241,9 +240,11 @@
 
     private async Task OnConfirm()
     {
-        // Emit the full selection (including items currently hidden by filter)
+
         await OnSelectedChanged.InvokeAsync(MasterSelectedIds);
-        Visible = false;
+        await VisibleChanged.InvokeAsync();
+        
     }
+
 
 }

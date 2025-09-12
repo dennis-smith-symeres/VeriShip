@@ -47,7 +47,13 @@
     OnSelectedChanged="@QcSpecificationSelectionChanged"
     SelectedIds="@GridData.Where(x=>x.Active).Select(x => x.QcSpecificationId)">
 </QcSpecificationSelector>
-
+<QcSpecificationSelector
+    AllQcSpecifications="@QcSpecitications"
+    CoATable="@Table.Tests"
+    @bind-Visible="@DialogTestsIsVisible"
+    OnSelectedChanged="@QcSpecificationSelectionChanged"
+    SelectedIds="@GridData.Where(x=>x.Active).Select(x => x.QcSpecificationId)">
+</QcSpecificationSelector>
     <TelerikSplitter
 
         Orientation="@SplitterOrientation.Horizontal">
@@ -55,7 +61,7 @@
             <SplitterPane Collapsible="true" Size="50%" >
                 <ResultTemplate T="IOrderedEnumerable<Result>" Result="QCSpecificationResult" >
 
-                    <div style="display: flex; flex-direction: column;gap: 1rem; padding: 1rem">
+                    <div style="display: flex; flex-direction: column;gap: 1rem; padding: 1rem;    align-items: flex-start;">
                         
                     <EditQcResults
                         OnChange="@UpdateResult"
@@ -79,6 +85,11 @@
                         <GridColumn Field="QcSpecification.Technique" Title="Technique" Width="100px"></GridColumn>
                         <GridColumn Field="QcSpecification.Acceptance" Title="Acceptance" Width="150px"></GridColumn>
                     </EditQcResults>
+                    <TelerikButton
+                        FillMode="@ThemeConstants.Button.FillMode.Outline"
+                        OnClick="@(() => DialogTestsIsVisible = true)">
+                        Add / Remove General information
+                    </TelerikButton>
                     </div>
 
 
@@ -116,13 +127,14 @@
     [Inject] public required ProtectedLocalStorage LocalStorage { get; set; }
 
     public bool DialogGeneralIngormationsIsVisible { get; set; }
+    public bool DialogTestsIsVisible { get; set; }
     public Ardalis.Result.Result<IOrderedEnumerable<Result>> QCSpecificationResult { get; set; } = Ardalis.Result.Result<IOrderedEnumerable<Result>>.Unavailable();
     public List<QcSpecification> QcSpecitications { get; set; } = [];
     public List<Result> Results { get; set; } = [];
     private bool GridIsInEditMode { get; set; }
     private ObservableCollection<QcResultEditModel> GridData { get; set; } = new();
     public byte[] FileData { get; set; }
-
+    public Result<byte[]> PreviewResult { get; set; } = Result<byte[]>.Unavailable();
     
     private decimal PdfZoom { get; set; } = 1.00m;
 
@@ -257,7 +269,7 @@
       
     }
 
-    public Result<byte[]> PreviewResult { get; set; } = Result<byte[]>.Unavailable();
+
 
     private async Task UpdateResult(QcResultEditModel obj)
     {

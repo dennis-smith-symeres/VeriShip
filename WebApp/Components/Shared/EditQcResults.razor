@@ -10,7 +10,7 @@
     OnRowRender="@OnGridRowRender"
     OnCancel="@OnCancelHandle"
     OnUpdate="@UpdateHandler"
-    
+    Class="batch-grid"
    >
 
     <GridColumns>
@@ -146,7 +146,7 @@
             args.Class = "k-new-row";
         }
 
-        if (item.Active is false)
+        if (item.Active is false || item.IsDeleted)
         {
             args.Class = "k-deleted-row";
         }
@@ -156,6 +156,8 @@
           
             args.Class += " editable";
         }
+
+       
     }
 
 
